@@ -15,7 +15,8 @@ import type {
 import {
   loadRegionsGeoJSON,
   enrichRegionData,
-  getOverpricingRange,
+  getMunicipalityOverpricingRange,
+  getRegionOverpricingRange,
   loadMunicipalitiesGeoJSON,
   enrichMunicipalityData,
 } from '@/app/lib/data-service';
@@ -55,11 +56,11 @@ export function MapContainer() {
         // Load regions GeoJSON
         const regionsGeoJSON = await loadRegionsGeoJSON();
 
-        // Enrich with overpricing data
-        const enriched = await enrichRegionData(regionsGeoJSON);
+        // Enrich with pre-computed overpricing data (synchronous now)
+        const enriched = enrichRegionData(regionsGeoJSON);
 
-        // Get overpricing range for color scale
-        const range = getOverpricingRange();
+        // Get region overpricing range for color scale (used in country view)
+        const range = getRegionOverpricingRange();
 
         setRegionsData(enriched);
         setColorScale(prev => ({
@@ -97,6 +98,25 @@ export function MapContainer() {
 
     loadMunicipalities();
   }, [viewState.level, viewState.selectedRegion]);
+
+  // Update color scale range based on view level
+  useEffect(() => {
+    if (viewState.level === 'country') {
+      // Use region range for country view
+      const range = getRegionOverpricingRange();
+      setColorScale(prev => ({
+        ...prev,
+        domain: range,
+      }));
+    } else if (viewState.level === 'region') {
+      // Use municipality range for region view
+      const range = getMunicipalityOverpricingRange();
+      setColorScale(prev => ({
+        ...prev,
+        domain: range,
+      }));
+    }
+  }, [viewState.level]);
 
   // Handle region click
   const handleRegionClick = (regionCode: string) => {

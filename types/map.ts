@@ -8,6 +8,16 @@ export interface MunicipalityData {
 // Map of municipality names to their data
 export type MunicipalityDataMap = Record<string, MunicipalityData>;
 
+// Pre-computed region data from data_regions.json
+export interface RegionData {
+  porcentaje_sobreprecio: number;
+  compras_caras: number;
+  compras_totales: number;
+}
+
+// Map of region names to their pre-computed data
+export type RegionDataMap = Record<string, RegionData>;
+
 // GeoJSON base types - using GeoJSON standard types for D3 compatibility
 import type { Geometry } from 'geojson';
 
@@ -71,7 +81,7 @@ export interface MunicipalityFeatureCollection {
 export interface EnrichedRegionData {
   feature: RegionFeature;
   averageOverpricing: number;
-  municipalityCount: number;
+  municipalityCount?: number; // Optional since not available in pre-computed data
   totalExpensivePurchases: number;
   totalPurchases: number;
 }

@@ -4,9 +4,11 @@ import type {
   MunicipalityFeatureCollection,
   EnrichedRegionData,
   EnrichedMunicipalityData,
+  RegionDataMap,
 } from '@/types/map';
-import { findMunicipalityDataKey } from './name-normalizer';
+import { findMunicipalityDataKey, findRegionDataKey } from './name-normalizer';
 import municipalityData from '@/app/data/data_municipalities.json';
+import regionData from '@/app/data/data_regions.json';
 
 // Cache for loaded GeoJSON data
 const municipalityGeoJSONCache = new Map<number, MunicipalityFeatureCollection>();
@@ -63,6 +65,13 @@ export function getMunicipalityData(): MunicipalityDataMap {
 }
 
 /**
+ * Gets the region data map (already loaded from JSON import)
+ */
+export function getRegionData(): RegionDataMap {
+  return regionData as RegionDataMap;
+}
+
+/**
  * Enriches municipality features with overpricing data
  */
 export function enrichMunicipalityData(
@@ -84,76 +93,45 @@ export function enrichMunicipalityData(
 }
 
 /**
- * Calculates aggregate overpricing data for a region
+ * Enriches all regions with pre-computed overpricing data
+ * Uses data_regions.json instead of calculating on the fly
+ * This eliminates 16 HTTP requests and computation time on initial load
  */
-export async function calculateRegionOverpricing(
-  regionCode: number
-): Promise<{
-  averageOverpricing: number;
-  municipalityCount: number;
-  totalExpensivePurchases: number;
-  totalPurchases: number;
-}> {
-  try {
-    const municipalityCollection = await loadMunicipalitiesGeoJSON(regionCode);
-    const enrichedData = enrichMunicipalityData(municipalityCollection);
+export function enrichRegionData(
+  regionCollection: RegionFeatureCollection
+): EnrichedRegionData[] {
+  const data = getRegionData();
+  const dataKeys = Object.keys(data);
+
+  return regionCollection.features.map(feature => {
+    const regionName = feature.properties.Region;
+    const matchingKey = findRegionDataKey(regionName, dataKeys);
     
-    let totalOverpricing = 0;
-    let countWithData = 0;
-    let totalExpensivePurchases = 0;
-    let totalPurchases = 0;
-
-    enrichedData.forEach(({ data }) => {
-      if (data) {
-        totalOverpricing += data.porcentaje_sobreprecio;
-        totalExpensivePurchases += data.compras_caras;
-        totalPurchases += data.compras_totales;
-        countWithData++;
-      }
-    });
-
+    if (matchingKey && data[matchingKey]) {
+      const regionStats = data[matchingKey];
+      return {
+        feature,
+        averageOverpricing: regionStats.porcentaje_sobreprecio,
+        totalExpensivePurchases: regionStats.compras_caras,
+        totalPurchases: regionStats.compras_totales,
+      };
+    }
+    
+    // Fallback if no matching data found
+    console.warn(`No pre-computed data found for region: ${regionName}`);
     return {
-      averageOverpricing: countWithData > 0 ? totalOverpricing / countWithData : 0,
-      municipalityCount: enrichedData.length,
-      totalExpensivePurchases,
-      totalPurchases,
-    };
-  } catch (error) {
-    console.error(`Error calculating region ${regionCode} overpricing:`, error);
-    return {
+      feature,
       averageOverpricing: 0,
-      municipalityCount: 0,
       totalExpensivePurchases: 0,
       totalPurchases: 0,
     };
-  }
-}
-
-/**
- * Enriches all regions with aggregated overpricing data
- */
-export async function enrichRegionData(
-  regionCollection: RegionFeatureCollection
-): Promise<EnrichedRegionData[]> {
-  const enrichmentPromises = regionCollection.features.map(async feature => {
-    const stats = await calculateRegionOverpricing(feature.properties.codregion);
-    
-    return {
-      feature,
-      averageOverpricing: stats.averageOverpricing,
-      municipalityCount: stats.municipalityCount,
-      totalExpensivePurchases: stats.totalExpensivePurchases,
-      totalPurchases: stats.totalPurchases,
-    };
   });
-
-  return Promise.all(enrichmentPromises);
 }
 
 /**
- * Gets the range of overpricing percentages across all data
+ * Gets the range of overpricing percentages across all municipality data
  */
-export function getOverpricingRange(): [number, number] {
+export function getMunicipalityOverpricingRange(): [number, number] {
   const data = getMunicipalityData();
   const percentages = Object.values(data).map(d => d.porcentaje_sobreprecio);
   
@@ -165,6 +143,31 @@ export function getOverpricingRange(): [number, number] {
     Math.min(...percentages),
     Math.max(...percentages),
   ];
+}
+
+/**
+ * Gets the range of overpricing percentages across all region data
+ */
+export function getRegionOverpricingRange(): [number, number] {
+  const data = getRegionData();
+  const percentages = Object.values(data).map(d => d.porcentaje_sobreprecio);
+  
+  if (percentages.length === 0) {
+    return [0, 100];
+  }
+
+  return [
+    Math.min(...percentages),
+    Math.max(...percentages),
+  ];
+}
+
+/**
+ * Gets the range of overpricing percentages across all data
+ * @deprecated Use getMunicipalityOverpricingRange() or getRegionOverpricingRange() instead
+ */
+export function getOverpricingRange(): [number, number] {
+  return getMunicipalityOverpricingRange();
 }
 
 /**

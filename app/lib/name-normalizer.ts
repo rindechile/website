@@ -162,3 +162,60 @@ export function createMunicipalityNameMapping(
 export function getDisplayName(name: string): string {
   return normalizeMunicipalityName(name);
 }
+
+/**
+ * Normalizes region names to match between GeoJSON and data sources
+ * Handles variations like:
+ * - "Región de Arica y Parinacota" -> "Region de Arica y Parinacota"
+ * - "Región de Aysén del Gral.Ibañez del Campo" -> "Region Aysen del General Carlos IbaNez del Campo"
+ */
+export function normalizeRegionName(regionName: string): string {
+  if (!regionName) return '';
+  
+  // Remove "Región" prefix and replace with "Region"
+  let normalized = regionName.replace(/^Región\s+/i, 'Region ');
+  
+  // Handle specific name variations between GeoJSON and data_regions.json
+  const regionMappings: Record<string, string> = {
+    'Region de Aysén del Gral.Ibañez del Campo': 'Region Aysen del General Carlos IbaNez del Campo',
+    'Region de Aysén del Gral. Carlos Ibáñez del Campo': 'Region Aysen del General Carlos IbaNez del Campo',
+    'Region del Libertador Bernardo O\'Higgins': 'Region del Libertador General Bernardo OHiggins',
+    'Region de Magallanes y Antártica Chilena': 'Region de Magallanes y de la Antartica',
+    'Region de Magallanes y de la Antártica Chilena': 'Region de Magallanes y de la Antartica',
+    'Region de la Araucanía': 'Region de la Araucania',
+    'Region del Bío-Bío': 'Region del Biobio',
+    'Region del Biobío': 'Region del Biobio',
+    'Region de Ñuble': 'Region del Nuble',
+  };
+  
+  // Check if there's a specific mapping
+  if (regionMappings[normalized]) {
+    return regionMappings[normalized];
+  }
+  
+  return normalized;
+}
+
+/**
+ * Finds a matching key in the region data object
+ * Uses fuzzy matching to handle slight variations
+ */
+export function findRegionDataKey(
+  regionName: string,
+  dataKeys: string[]
+): string | null {
+  const normalized = normalizeRegionName(regionName);
+  
+  // First try: exact match
+  if (dataKeys.includes(normalized)) {
+    return normalized;
+  }
+  
+  // Second try: case-insensitive match without accents
+  const lowerNormalized = removeAccents(normalized.toLowerCase());
+  const match = dataKeys.find(key => 
+    removeAccents(key.toLowerCase()) === lowerNormalized
+  );
+  
+  return match || null;
+}
