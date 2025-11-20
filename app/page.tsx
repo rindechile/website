@@ -1,9 +1,9 @@
-import Image from "next/image";
+import { MapContainer } from "./components/map/MapContainer";
 
 export default function Home() {
   return (
-    <main>
-      Helo
+    <main className="w-full h-screen">
+      <MapContainer />
     </main>
   );
 }

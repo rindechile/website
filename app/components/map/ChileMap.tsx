@@ -9,6 +9,10 @@ import type {
   TooltipData,
   ColorScale,
 } from '@/types/map';
+import {
+  loadMunicipalitiesGeoJSON,
+  enrichMunicipalityData,
+} from '@/app/lib/data-service';
 
 interface ChileMapProps {
   regionsData: EnrichedRegionData[];
@@ -29,6 +33,8 @@ export function ChileMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
+  const [municipalitiesData, setMunicipalitiesData] = useState<EnrichedMunicipalityData[]>([]);
+  const [loadingMunicipalities, setLoadingMunicipalities] = useState(false);
 
   // Handle responsive sizing
   useEffect(() => {
@@ -45,14 +51,32 @@ export function ChileMap({
     return () => resizeObserver.disconnect();
   }, []);
 
-  // Setup D3 projection centered on Chile
-  const projection = d3
-    .geoMercator()
-    .center([-71, -35]) // Center on Chile
-    .scale(viewState.level === 'country' ? 800 : 2000) // Adjust scale based on view level
-    .translate([dimensions.width / 2, dimensions.height / 2]);
+  // Setup D3 projection centered on Chile or selected region
+  const projection = useCallback(() => {
+    const baseProjection = d3.geoMercator();
+    
+    if (viewState.level === 'region' && viewState.selectedRegion && municipalitiesData.length > 0) {
+      // Get bounds of all municipalities to properly frame the region
+      const tempPath = d3.geoPath().projection(baseProjection);
+      const bounds = tempPath.bounds(viewState.selectedRegion);
+      const dx = bounds[1][0] - bounds[0][0];
+      const dy = bounds[1][1] - bounds[0][1];
+      const x = (bounds[0][0] + bounds[1][0]) / 2;
+      const y = (bounds[0][1] + bounds[1][1]) / 2;
+      const scale = 0.8 / Math.max(dx / dimensions.width, dy / dimensions.height);
+      const translate: [number, number] = [dimensions.width / 2 - scale * x, dimensions.height / 2 - scale * y];
+      
+      return baseProjection.scale(scale).translate(translate);
+    }
+    
+    // Default: center on Chile
+    return baseProjection
+      .center([-71, -35])
+      .scale(800)
+      .translate([dimensions.width / 2, dimensions.height / 2]);
+  }, [viewState.level, viewState.selectedRegion, dimensions, municipalitiesData]);
 
-  const pathGenerator = d3.geoPath().projection(projection);
+  const pathGenerator = d3.geoPath().projection(projection());
 
   // Color scale function
   const getColor = useCallback(
@@ -66,6 +90,30 @@ export function ChileMap({
     },
     [colorScale]
   );
+
+  // Load municipalities when region is selected
+  useEffect(() => {
+    async function loadMunicipalities() {
+      if (viewState.level === 'region' && viewState.selectedRegion) {
+        setLoadingMunicipalities(true);
+        try {
+          const regionCode = viewState.selectedRegion.properties.codregion;
+          const municipalityCollection = await loadMunicipalitiesGeoJSON(regionCode);
+          const enriched = enrichMunicipalityData(municipalityCollection);
+          setMunicipalitiesData(enriched);
+        } catch (error) {
+          console.error('Error loading municipalities:', error);
+          setMunicipalitiesData([]);
+        } finally {
+          setLoadingMunicipalities(false);
+        }
+      } else {
+        setMunicipalitiesData([]);
+      }
+    }
+
+    loadMunicipalities();
+  }, [viewState.level, viewState.selectedRegion]);
 
   // Setup zoom behavior
   useEffect(() => {
@@ -162,10 +210,41 @@ export function ChileMap({
               />
             ))}
 
-          {/* Placeholder for municipality rendering - will be implemented in step 7 */}
-          {viewState.level === 'region' && viewState.selectedRegion && (
-            <text x={dimensions.width / 2} y={dimensions.height / 2} textAnchor="middle">
-              Municipality view - coming in step 7
+          {/* Render municipalities when in region view */}
+          {viewState.level === 'region' && !loadingMunicipalities &&
+            municipalitiesData.map((municipality) => (
+              <path
+                key={municipality.feature.properties.cod_comuna}
+                d={pathGenerator(municipality.feature) || ''}
+                fill={getColor(municipality.data?.porcentaje_sobreprecio)}
+                stroke="#FFFFFF"
+                strokeWidth={0.5}
+                className="cursor-pointer transition-opacity hover:opacity-80"
+                onClick={() => handleMunicipalityClick(municipality.feature.properties.cod_comuna.toString())}
+                onMouseEnter={(e) =>
+                  showTooltip(
+                    {
+                      name: municipality.feature.properties.Comuna,
+                      overpricing: municipality.data?.porcentaje_sobreprecio || null,
+                      x: 0,
+                      y: 0,
+                    },
+                    e
+                  )
+                }
+                onMouseLeave={hideTooltip}
+              />
+            ))}
+
+          {/* Loading indicator for municipalities */}
+          {viewState.level === 'region' && loadingMunicipalities && (
+            <text
+              x={dimensions.width / 2}
+              y={dimensions.height / 2}
+              textAnchor="middle"
+              className="text-sm fill-gray-600"
+            >
+              Loading municipalities...
             </text>
           )}
         </g>
