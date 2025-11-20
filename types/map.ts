@@ -8,11 +8,8 @@ export interface MunicipalityData {
 // Map of municipality names to their data
 export type MunicipalityDataMap = Record<string, MunicipalityData>;
 
-// GeoJSON base types
-export interface GeoJSONGeometry {
-  type: "Polygon" | "MultiPolygon";
-  coordinates: number[][][] | number[][][][];
-}
+// GeoJSON base types - using GeoJSON standard types for D3 compatibility
+import type { Geometry } from 'geojson';
 
 // Common properties in both region and municipality GeoJSON
 interface BaseGeoJSONProperties {
@@ -42,13 +39,13 @@ export interface MunicipalityProperties extends BaseGeoJSONProperties {
 // GeoJSON Feature types
 export interface RegionFeature {
   type: "Feature";
-  geometry: GeoJSONGeometry;
+  geometry: Geometry;
   properties: RegionProperties;
 }
 
 export interface MunicipalityFeature {
   type: "Feature";
-  geometry: GeoJSONGeometry;
+  geometry: Geometry;
   properties: MunicipalityProperties;
 }
 
@@ -97,13 +94,15 @@ export interface MapViewState {
 // Color scale types
 export interface ColorScale {
   domain: [number, number];
+  lowColor: string;
+  highColor: string;
   interpolate: (t: number) => string;
 }
 
 // Tooltip data
 export interface TooltipData {
   name: string;
-  percentage: number;
+  overpricing: number | null;
   x: number;
   y: number;
 }
