@@ -21,6 +21,7 @@ export default function RootLayout({
     <html lang="es">
       <body
         className={`${instrumentSans.variable} antialiased`}
+        style={{ backgroundColor: '#121A1D' }}
       >
         {children}
       </body>

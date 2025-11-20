@@ -35,6 +35,18 @@ export function ChileMap({
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const [municipalitiesData, setMunicipalitiesData] = useState<EnrichedMunicipalityData[]>([]);
   const [loadingMunicipalities, setLoadingMunicipalities] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile screen size (below md breakpoint: 768px)
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Handle responsive sizing
   useEffect(() => {
@@ -69,12 +81,14 @@ export function ChileMap({
       return baseProjection.scale(scale).translate(translate);
     }
     
-    // Default: center on Chile
+    // Default: center on Chile with rotation on desktop
+    const rotation = isMobile ? 0 : 90; // Rotate 90° on desktop, 0° on mobile
     return baseProjection
+      .rotate([0, 0, rotation])
       .center([-71, -35])
       .scale(800)
       .translate([dimensions.width / 2, dimensions.height / 2]);
-  }, [viewState.level, viewState.selectedRegion, dimensions, municipalitiesData]);
+  }, [viewState.level, viewState.selectedRegion, dimensions, municipalitiesData, isMobile]);
 
   const pathGenerator = d3.geoPath().projection(projection());
 
@@ -181,7 +195,7 @@ export function ChileMap({
         ref={svgRef}
         width={dimensions.width}
         height={dimensions.height}
-        className="bg-white"
+        style={{ backgroundColor: '#121A1D' }}
       >
         <g className="map-container">
           {/* Render regions when in country view */}

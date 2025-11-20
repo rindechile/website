@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { ChileMap } from './ChileMap';
 import { MapLegend } from './MapLegend';
 import { MunicipalityDetail } from './MunicipalityDetail';
-import { MapBreadcrumb } from './MapBreadcrumb';
+import { Logo } from '../Logo';
 import type {
   MapViewState,
   EnrichedRegionData,
@@ -160,10 +160,10 @@ export function MapContainer() {
 
   if (loading) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full h-screen flex items-center justify-center" style={{ backgroundColor: '#121A1D' }}>
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
-          <p className="mt-4 text-gray-600">Loading map data...</p>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-white border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+          <p className="mt-4 text-white">Loading map data...</p>
         </div>
       </div>
     );
@@ -171,42 +171,42 @@ export function MapContainer() {
 
   if (error) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full h-screen flex items-center justify-center" style={{ backgroundColor: '#121A1D' }}>
         <div className="text-center max-w-md">
-          <p className="text-red-600 text-lg font-semibold mb-2">Error</p>
-          <p className="text-gray-700">{error}</p>
+          <p className="text-red-400 text-lg font-semibold mb-2">Error</p>
+          <p className="text-white">{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-screen flex flex-col bg-gray-50">
-      <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Chile Municipality Overpricing Analysis
+    <div className="w-full h-screen flex flex-col" style={{ backgroundColor: '#121A1D' }}>
+      {/* Header */}
+      <header className="px-8 py-6" style={{ backgroundColor: '#121A1D' }}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Logo />
+            <h1 className="text-xl font-semibold text-white">
+              Sobreprecios en Chile
             </h1>
           </div>
-          <div className="flex items-center gap-4">
-            <MapBreadcrumb
-              viewState={viewState}
-              onNavigateToCountry={handleBackToCountry}
-            />
-            <div className="h-4 w-px bg-gray-300" />
-            <p className="text-sm text-gray-600">
-              {viewState.level === 'country'
-                ? 'Click on a region to view municipalities'
-                : 'Click on a municipality for details'}
-            </p>
+          <div className="text-white font-light">
+            Transparenta 2025
           </div>
         </div>
       </header>
 
-      <div className="flex-1 flex gap-4 p-6">
-        {/* Map */}
-        <div className="flex-1 bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+      {/* Main Title */}
+      <div className="px-8 py-4 text-center">
+        <h2 className="text-2xl font-light text-white">
+          % de compras con sobreprecio por región en 2025
+        </h2>
+      </div>
+
+      {/* Map Container */}
+      <div className="flex-1 px-8 pb-2 overflow-hidden">
+        <div className="w-full h-full" style={{ backgroundColor: '#121A1D' }}>
           <ChileMap
             regionsData={regionsData}
             onRegionClick={handleRegionClick}
@@ -215,11 +215,11 @@ export function MapContainer() {
             colorScale={colorScale}
           />
         </div>
+      </div>
 
-        {/* Legend */}
-        <div className="w-64 flex-shrink-0">
-          <MapLegend colorScale={colorScale} />
-        </div>
+      {/* Legend at Bottom */}
+      <div className="px-8 pb-8">
+        <MapLegend colorScale={colorScale} />
       </div>
 
       {/* Municipality Detail Dialog */}
