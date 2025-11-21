@@ -37,6 +37,7 @@ export function MapContainer() {
   } | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [municipalitiesData, setMunicipalitiesData] = useState<EnrichedMunicipalityData[]>([]);
+  const [loadingMunicipalities, setLoadingMunicipalities] = useState(false);
 
   // Initialize color scale
   const [colorScale, setColorScale] = useState<ColorScale>({
@@ -82,6 +83,7 @@ export function MapContainer() {
   useEffect(() => {
     async function loadMunicipalities() {
       if (viewState.level === 'region' && viewState.selectedRegion) {
+        setLoadingMunicipalities(true);
         try {
           const regionCode = viewState.selectedRegion.properties.codregion;
           const municipalityCollection = await loadMunicipalitiesGeoJSON(regionCode);
@@ -90,9 +92,12 @@ export function MapContainer() {
         } catch (error) {
           console.error('Error loading municipalities for detail:', error);
           setMunicipalitiesData([]);
+        } finally {
+          setLoadingMunicipalities(false);
         }
       } else {
         setMunicipalitiesData([]);
+        setLoadingMunicipalities(false);
       }
     }
 
@@ -209,6 +214,8 @@ export function MapContainer() {
         <div className="w-full h-full" style={{ backgroundColor: '#121A1D' }}>
           <ChileMap
             regionsData={regionsData}
+            municipalitiesData={municipalitiesData}
+            loadingMunicipalities={loadingMunicipalities}
             onRegionClick={handleRegionClick}
             onMunicipalityClick={handleMunicipalityClick}
             viewState={viewState}

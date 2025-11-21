@@ -6,7 +6,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
+} from '@/app/components/ui/breadcrumb';
 
 interface MapBreadcrumbProps {
   viewState: MapViewState;

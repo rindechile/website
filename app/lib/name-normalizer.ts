@@ -17,26 +17,6 @@ const PREFIXES = [
   'I ',
 ];
 
-// Special case mappings for municipalities with different naming conventions
-const SPECIAL_CASES: Record<string, string> = {
-  // Add specific mappings if needed
-  'CABO DE HORNOS': 'Cabo de Hornos',
-  'LO ESPEJO': 'Lo Espejo',
-  'LOS ANGELES': 'Los Ángeles',
-  'LOS VILOS': 'Los Vilos',
-  'LA FLORIDA': 'La Florida',
-  'LO BARNECHEA': 'Lo Barnechea',
-  'LO PRADO': 'Lo Prado',
-  'LAS CONDES': 'Las Condes',
-  'LA REINA': 'La Reina',
-  'LA CISTERNA': 'La Cisterna',
-  'LA GRANJA': 'La Granja',
-  'LA PINTANA': 'La Pintana',
-  'EL BOSQUE': 'El Bosque',
-  'EL MONTE': 'El Monte',
-  'O\'HIGGINS': "O'Higgins",
-};
-
 /**
  * Removes accents from a string for comparison purposes
  */
@@ -54,22 +34,12 @@ export function normalizeMunicipalityName(name: string): string {
   // Trim and convert to uppercase for processing
   let normalized = name.trim().toUpperCase();
   
-  // Check special cases first (exact match)
-  if (SPECIAL_CASES[normalized]) {
-    return SPECIAL_CASES[normalized];
-  }
-  
   // Remove prefixes
   for (const prefix of PREFIXES) {
     if (normalized.startsWith(prefix)) {
       normalized = normalized.substring(prefix.length);
       break;
     }
-  }
-  
-  // Check if the remaining part is in special cases
-  if (SPECIAL_CASES[normalized]) {
-    return SPECIAL_CASES[normalized];
   }
   
   // Convert to title case

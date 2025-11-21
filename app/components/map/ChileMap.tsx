@@ -16,6 +16,8 @@ import {
 
 interface ChileMapProps {
   regionsData: EnrichedRegionData[];
+  municipalitiesData: EnrichedMunicipalityData[];
+  loadingMunicipalities: boolean;
   onRegionClick?: (regionCode: string) => void;
   onMunicipalityClick?: (municipalityCode: string) => void;
   viewState: MapViewState;
@@ -24,6 +26,8 @@ interface ChileMapProps {
 
 export function ChileMap({
   regionsData,
+  municipalitiesData,
+  loadingMunicipalities,
   onRegionClick,
   onMunicipalityClick,
   viewState,
@@ -33,8 +37,6 @@ export function ChileMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
-  const [municipalitiesData, setMunicipalitiesData] = useState<EnrichedMunicipalityData[]>([]);
-  const [loadingMunicipalities, setLoadingMunicipalities] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   // Detect mobile screen size (below md breakpoint: 768px)
@@ -104,30 +106,6 @@ export function ChileMap({
     },
     [colorScale]
   );
-
-  // Load municipalities when region is selected
-  useEffect(() => {
-    async function loadMunicipalities() {
-      if (viewState.level === 'region' && viewState.selectedRegion) {
-        setLoadingMunicipalities(true);
-        try {
-          const regionCode = viewState.selectedRegion.properties.codregion;
-          const municipalityCollection = await loadMunicipalitiesGeoJSON(regionCode);
-          const enriched = enrichMunicipalityData(municipalityCollection);
-          setMunicipalitiesData(enriched);
-        } catch (error) {
-          console.error('Error loading municipalities:', error);
-          setMunicipalitiesData([]);
-        } finally {
-          setLoadingMunicipalities(false);
-        }
-      } else {
-        setMunicipalitiesData([]);
-      }
-    }
-
-    loadMunicipalities();
-  }, [viewState.level, viewState.selectedRegion]);
 
   // Setup zoom behavior
   useEffect(() => {

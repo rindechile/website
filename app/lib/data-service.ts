@@ -6,12 +6,38 @@ import type {
   EnrichedMunicipalityData,
   RegionDataMap,
 } from '@/types/map';
-import { findMunicipalityDataKey, findRegionDataKey } from './name-normalizer';
+
+import { findRegionDataKey } from './name-normalizer';
 import municipalityData from '@/app/data/data_municipalities.json';
 import regionData from '@/app/data/data_regions.json';
+import municipalityNameMapping from '@/public/data/municipality_name_mapping.json';
 
 // Cache for loaded GeoJSON data
 const municipalityGeoJSONCache = new Map<number, MunicipalityFeatureCollection>();
+
+// Pre-computed municipality name mapping (GeoJSON name -> data key)
+type MunicipalityNameMapping = { [geoJsonName: string]: string };
+const nameMapping = municipalityNameMapping as MunicipalityNameMapping;
+
+// Region name to ID mapping (1-16)
+const REGION_ID_MAP: { [regionName: string]: number } = {
+  'Region de Tarapaca': 1,
+  'Region de Antofagasta': 2,
+  'Region de Atacama': 3,
+  'Region de Coquimbo': 4,
+  'Region de Valparaiso': 5,
+  'Region del Libertador General Bernardo OHiggins': 6,
+  'Region del Maule': 7,
+  'Region del Biobio': 8,
+  'Region de la Araucania': 9,
+  'Region de los Lagos': 10,
+  'Region Aysen del General Carlos IbaNez del Campo': 11,
+  'Region de Magallanes y de la Antartica': 12,
+  'Region Metropolitana de Santiago': 13,
+  'Region de los Rios': 14,
+  'Region de Arica y Parinacota': 15,
+  'Region del Nuble': 16,
+};
 
 /**
  * Loads the Chile regions GeoJSON data
@@ -72,17 +98,38 @@ export function getRegionData(): RegionDataMap {
 }
 
 /**
+ * Gets the region ID (1-16) from a region name
+ */
+export function getRegionIdFromName(regionName: string): number | null {
+  const data = getRegionData();
+  const dataKeys = Object.keys(data);
+  const matchingKey = findRegionDataKey(regionName, dataKeys);
+  
+  if (matchingKey && REGION_ID_MAP[matchingKey]) {
+    return REGION_ID_MAP[matchingKey];
+  }
+  
+  return null;
+}
+
+/**
  * Enriches municipality features with overpricing data
+ * Uses pre-computed mapping for O(1) lookups instead of O(n) normalization
  */
 export function enrichMunicipalityData(
   municipalityCollection: MunicipalityFeatureCollection
 ): EnrichedMunicipalityData[] {
   const data = getMunicipalityData();
-  const dataKeys = Object.keys(data);
 
   return municipalityCollection.features.map(feature => {
     const comunaName = feature.properties.Comuna;
-    const matchingKey = findMunicipalityDataKey(comunaName, dataKeys);
+    
+    // Use pre-computed mapping for instant lookup
+    const matchingKey = nameMapping[comunaName];
+    
+    if (!matchingKey) {
+      console.warn(`No mapping found for municipality: ${comunaName}`);
+    }
     
     return {
       feature,
