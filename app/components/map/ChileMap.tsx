@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import * as d3 from 'd3';
 import type {
   MapViewState,
@@ -9,10 +9,6 @@ import type {
   TooltipData,
   ColorScale,
 } from '@/types/map';
-import {
-  loadMunicipalitiesGeoJSON,
-  enrichMunicipalityData,
-} from '@/app/lib/data-service';
 
 interface ChileMapProps {
   regionsData: EnrichedRegionData[];
@@ -70,17 +66,14 @@ export function ChileMap({
     const baseProjection = d3.geoMercator();
     
     if (viewState.level === 'region' && viewState.selectedRegion && municipalitiesData.length > 0) {
-      // Get bounds of all municipalities to properly frame the region
-      const tempPath = d3.geoPath().projection(baseProjection);
-      const bounds = tempPath.bounds(viewState.selectedRegion);
-      const dx = bounds[1][0] - bounds[0][0];
-      const dy = bounds[1][1] - bounds[0][1];
-      const x = (bounds[0][0] + bounds[1][0]) / 2;
-      const y = (bounds[0][1] + bounds[1][1]) / 2;
-      const scale = 0.8 / Math.max(dx / dimensions.width, dy / dimensions.height);
-      const translate: [number, number] = [dimensions.width / 2 - scale * x, dimensions.height / 2 - scale * y];
-      
-      return baseProjection.scale(scale).translate(translate);
+      // Use D3's fitExtent to automatically calculate correct projection parameters
+      const padding = 20;
+      return baseProjection
+        .rotate([0, 0, 0]) // Reset rotation for region view
+        .fitExtent(
+          [[padding, padding], [dimensions.width - padding, dimensions.height - padding]], 
+          viewState.selectedRegion
+        );
     }
     
     // Default: center on Chile with rotation on desktop
@@ -92,7 +85,11 @@ export function ChileMap({
       .translate([dimensions.width / 2, dimensions.height / 2]);
   }, [viewState.level, viewState.selectedRegion, dimensions, municipalitiesData, isMobile]);
 
-  const pathGenerator = d3.geoPath().projection(projection());
+  // Create path generator with reactive projection updates
+  const pathGenerator = useMemo(
+    () => d3.geoPath().projection(projection()),
+    [projection]
+  );
 
   // Color scale function
   const getColor = useCallback(
