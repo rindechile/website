@@ -120,3 +120,31 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Accessibility - Screen reader only content */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  /* Accessibility - Minimum touch target size (44px × 44px per WCAG) */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* Map shapes - Ensure minimum touch area on mobile */
+  @media (max-width: 768px) {
+    .map-shape {
+      stroke-width: 2px;
+    }
+  }
+}

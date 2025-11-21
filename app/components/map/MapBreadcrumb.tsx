@@ -25,11 +25,11 @@ export function MapBreadcrumb({
         {/* Chile (Country) */}
         <BreadcrumbItem>
           {viewState.level === 'country' ? (
-            <BreadcrumbPage>Chile</BreadcrumbPage>
+            <BreadcrumbPage className="text-white">Chile</BreadcrumbPage>
           ) : (
             <BreadcrumbLink
               onClick={onNavigateToCountry}
-              className="cursor-pointer hover:text-gray-900"
+              className="cursor-pointer text-white/80 hover:text-white"
             >
               Chile
             </BreadcrumbLink>
@@ -39,14 +39,14 @@ export function MapBreadcrumb({
         {/* Region */}
         {(viewState.level === 'region' || viewState.level === 'municipality') && viewState.selectedRegion && (
           <>
-            <BreadcrumbSeparator />
+            <BreadcrumbSeparator className="text-white/40" />
             <BreadcrumbItem>
               {viewState.level === 'region' ? (
-                <BreadcrumbPage>{viewState.selectedRegion.properties.Region}</BreadcrumbPage>
+                <BreadcrumbPage className="text-white">{viewState.selectedRegion.properties.Region}</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink
                   onClick={onNavigateToRegion}
-                  className="cursor-pointer hover:text-gray-900"
+                  className="cursor-pointer text-white/80 hover:text-white"
                 >
                   {viewState.selectedRegion.properties.Region}
                 </BreadcrumbLink>
@@ -58,9 +58,9 @@ export function MapBreadcrumb({
         {/* Municipality */}
         {viewState.level === 'municipality' && viewState.selectedMunicipality && (
           <>
-            <BreadcrumbSeparator />
+            <BreadcrumbSeparator className="text-white/40" />
             <BreadcrumbItem>
-              <BreadcrumbPage>{viewState.selectedMunicipality.properties.Comuna}</BreadcrumbPage>
+              <BreadcrumbPage className="text-white">{viewState.selectedMunicipality.properties.Comuna}</BreadcrumbPage>
             </BreadcrumbItem>
           </>
         )}

@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/app/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 
 interface MunicipalityDetailProps {
   open: boolean;
@@ -21,6 +22,23 @@ interface MunicipalityDetailProps {
   municipalityName: string;
   regionName: string;
   data: MunicipalityData | null;
+}
+
+// Helper function to get severity level and badge variant
+function getSeverityInfo(percentage: number): {
+  level: string;
+  variant: 'default' | 'secondary' | 'destructive' | 'outline';
+  color: string;
+} {
+  if (percentage <= 10) {
+    return { level: 'Bajo', variant: 'secondary', color: 'text-green-600' };
+  } else if (percentage <= 15) {
+    return { level: 'Moderado', variant: 'outline', color: 'text-yellow-600' };
+  } else if (percentage <= 25) {
+    return { level: 'Alto', variant: 'default', color: 'text-orange-600' };
+  } else {
+    return { level: 'Muy Alto', variant: 'destructive', color: 'text-red-600' };
+  }
 }
 
 export function MunicipalityDetail({
@@ -54,12 +72,21 @@ export function MunicipalityDetail({
     return `${num.toFixed(2)}%`;
   };
 
+  const severityInfo = getSeverityInfo(data.porcentaje_sobreprecio);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl">{municipalityName}</DialogTitle>
-          <DialogDescription className="text-base">{regionName}</DialogDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle className="text-2xl">{municipalityName}</DialogTitle>
+              <DialogDescription className="text-base">{regionName}</DialogDescription>
+            </div>
+            <Badge variant={severityInfo.variant} className="text-sm">
+              {severityInfo.level}
+            </Badge>
+          </div>
         </DialogHeader>
 
         <div className="space-y-6">

@@ -1,10 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ChileMap } from './ChileMap';
 import { MapLegend } from './MapLegend';
 import { MunicipalityDetail } from './MunicipalityDetail';
+import { MapBreadcrumb } from './MapBreadcrumb';
+import { InfoSheet } from './InfoSheet';
 import { Logo } from '../Logo';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ArrowLeft, AlertCircle, RefreshCw, Share2, Check, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import type {
   MapViewState,
   EnrichedRegionData,
@@ -22,6 +29,9 @@ import {
 } from '@/app/lib/data-service';
 
 export function MapContainer() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [regionsData, setRegionsData] = useState<EnrichedRegionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +48,9 @@ export function MapContainer() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [municipalitiesData, setMunicipalitiesData] = useState<EnrichedMunicipalityData[]>([]);
   const [loadingMunicipalities, setLoadingMunicipalities] = useState(false);
+  const [nationalAverage, setNationalAverage] = useState<number | undefined>(undefined);
+  const [shareButtonText, setShareButtonText] = useState<'share' | 'copied'>('share');
+  const [ariaLiveMessage, setAriaLiveMessage] = useState<string>('');
 
   // Initialize color scale
   const [colorScale, setColorScale] = useState<ColorScale>({
@@ -63,6 +76,13 @@ export function MapContainer() {
         // Get region overpricing range for color scale (used in country view)
         const range = getRegionOverpricingRange();
 
+        // Calculate national average
+        const totalOverpricing = enriched.reduce((sum, region) => 
+          sum + region.averageOverpricing, 0
+        );
+        const average = enriched.length > 0 ? totalOverpricing / enriched.length : undefined;
+        setNationalAverage(average);
+
         setRegionsData(enriched);
         setColorScale(prev => ({
           ...prev,
@@ -78,6 +98,24 @@ export function MapContainer() {
 
     loadData();
   }, []);
+
+  // Initialize view from URL params
+  useEffect(() => {
+    const regionParam = searchParams.get('region');
+    if (regionParam && regionsData.length > 0) {
+      const region = regionsData.find(
+        r => r.feature.properties.codregion.toString() === regionParam
+      );
+      
+      if (region && viewState.level === 'country') {
+        setViewState({
+          level: 'region',
+          selectedRegion: region.feature,
+          selectedMunicipality: null,
+        });
+      }
+    }
+  }, [searchParams, regionsData]);
 
   // Load municipalities when region is selected
   useEffect(() => {
@@ -135,6 +173,14 @@ export function MapContainer() {
         selectedRegion: region.feature,
         selectedMunicipality: null,
       });
+      
+      // Update URL
+      const params = new URLSearchParams();
+      params.set('region', regionCode);
+      router.push(`?${params.toString()}`, { scroll: false });
+      
+      // Announce to screen readers
+      setAriaLiveMessage(`Mostrando región ${region.feature.properties.Region}`);
     }
   };
 
@@ -151,6 +197,9 @@ export function MapContainer() {
         data: municipality.data,
       });
       setDialogOpen(true);
+      
+      // Announce to screen readers
+      setAriaLiveMessage(`Mostrando detalles de ${municipality.feature.properties.Comuna}`);
     }
   };
 
@@ -161,14 +210,79 @@ export function MapContainer() {
       selectedRegion: null,
       selectedMunicipality: null,
     });
+    
+    // Clear URL params
+    router.push('/', { scroll: false });
+    
+    // Announce to screen readers
+    setAriaLiveMessage('Mostrando vista de Chile completo');
   };
+
+  // Handle retry for errors
+  const handleRetry = () => {
+    window.location.reload();
+  };
+
+  // Handle share button
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareButtonText('copied');
+      setTimeout(() => setShareButtonText('share'), 2000);
+    } catch (err) {
+      console.error('Failed to copy URL:', err);
+    }
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // ESC key to go back
+      if (event.key === 'Escape') {
+        if (dialogOpen) {
+          setDialogOpen(false);
+        } else if (viewState.level === 'region') {
+          handleBackToCountry();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [viewState.level, dialogOpen]);
 
   if (loading) {
     return (
-      <div className="w-full h-screen flex items-center justify-center" style={{ backgroundColor: '#121A1D' }}>
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-white border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
-          <p className="mt-4 text-white">Loading map data...</p>
+      <div className="w-full h-screen flex flex-col" style={{ backgroundColor: '#121A1D' }}>
+        {/* Header Skeleton */}
+        <header className="px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-10 w-10 rounded-full bg-white/10" />
+              <Skeleton className="h-6 w-48 bg-white/10" />
+            </div>
+            <Skeleton className="h-9 w-32 bg-white/10" />
+          </div>
+        </header>
+
+        {/* Title Skeleton */}
+        <div className="px-8 py-4 text-center">
+          <Skeleton className="h-8 w-96 mx-auto bg-white/10" />
+        </div>
+
+        {/* Map Loading State */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-white/20 border-t-white" />
+            <p className="text-white/80">Cargando datos del mapa...</p>
+            <p className="text-white/50 text-sm">Preparando visualización</p>
+          </div>
+        </div>
+
+        {/* Legend Skeleton */}
+        <div className="px-8 pb-8">
+          <Skeleton className="h-16 w-full bg-white/10" />
         </div>
       </div>
     );
@@ -176,10 +290,23 @@ export function MapContainer() {
 
   if (error) {
     return (
-      <div className="w-full h-screen flex items-center justify-center" style={{ backgroundColor: '#121A1D' }}>
-        <div className="text-center max-w-md">
-          <p className="text-red-400 text-lg font-semibold mb-2">Error</p>
-          <p className="text-white">{error}</p>
+      <div className="w-full h-screen flex items-center justify-center p-8" style={{ backgroundColor: '#121A1D' }}>
+        <div className="max-w-md w-full">
+          <Alert variant="destructive" className="bg-red-900/20 border-red-500/50">
+            <AlertCircle className="h-5 w-5" />
+            <AlertTitle className="text-lg font-semibold">Error al cargar datos</AlertTitle>
+            <AlertDescription className="mt-2 space-y-4">
+              <p>{error}</p>
+              <Button
+                onClick={handleRetry}
+                variant="outline"
+                className="w-full bg-white/10 hover:bg-white/20 border-white/20 text-white"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Reintentar
+              </Button>
+            </AlertDescription>
+          </Alert>
         </div>
       </div>
     );
@@ -196,10 +323,55 @@ export function MapContainer() {
               Sobreprecios en Chile
             </h1>
           </div>
-          <div className="text-white font-light">
-            Transparenta 2025
+          <div className="flex items-center gap-3">
+            <InfoSheet />
+            {viewState.level === 'region' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleShare}
+                className="text-white hover:text-white hover:bg-white/10"
+                aria-label="Compartir vista actual"
+              >
+                {shareButtonText === 'share' ? (
+                  <>
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Compartir
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Copiado
+                  </>
+                )}
+              </Button>
+            )}
+            <div className="text-white font-light">
+              Transparenta 2025
+            </div>
           </div>
         </div>
+        
+        {/* Breadcrumb Navigation */}
+        {viewState.level !== 'country' && (
+          <div className="mt-4 flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToCountry}
+              className="text-white hover:text-white hover:bg-white/10"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver a Chile
+            </Button>
+            <div className="text-white/60">
+              <MapBreadcrumb
+                viewState={viewState}
+                onNavigateToCountry={handleBackToCountry}
+              />
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Title */}
@@ -210,7 +382,7 @@ export function MapContainer() {
       </div>
 
       {/* Map Container */}
-      <div className="flex-1 px-8 pb-2 overflow-hidden">
+      <div className="flex-1 px-8 pb-2 overflow-hidden relative">
         <div className="w-full h-full" style={{ backgroundColor: '#121A1D' }}>
           <ChileMap
             regionsData={regionsData}
@@ -222,11 +394,51 @@ export function MapContainer() {
             colorScale={colorScale}
           />
         </div>
+        
+        {/* Mobile Zoom Controls - Fixed Position */}
+        <div className="absolute bottom-4 right-4 flex flex-col gap-2 md:hidden">
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-11 w-11 bg-white/90 hover:bg-white shadow-lg"
+            aria-label="Acercar"
+            onClick={() => {
+              // This would need to be connected to ChileMap's zoom functionality
+              // For now, it's a placeholder for the UI
+            }}
+          >
+            <ZoomIn className="h-5 w-5" />
+          </Button>
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-11 w-11 bg-white/90 hover:bg-white shadow-lg"
+            aria-label="Alejar"
+            onClick={() => {
+              // This would need to be connected to ChileMap's zoom functionality
+              // For now, it's a placeholder for the UI
+            }}
+          >
+            <ZoomOut className="h-5 w-5" />
+          </Button>
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-11 w-11 bg-white/90 hover:bg-white shadow-lg"
+            aria-label="Restablecer vista"
+            onClick={() => {
+              // This would need to be connected to ChileMap's zoom functionality
+              // For now, it's a placeholder for the UI
+            }}
+          >
+            <Maximize2 className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
 
       {/* Legend at Bottom */}
       <div className="px-8 pb-8">
-        <MapLegend colorScale={colorScale} />
+        <MapLegend colorScale={colorScale} nationalAverage={nationalAverage} />
       </div>
 
       {/* Municipality Detail Dialog */}
@@ -239,6 +451,16 @@ export function MapContainer() {
           data={selectedMunicipalityData.data}
         />
       )}
+      
+      {/* ARIA Live Region for Screen Reader Announcements */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {ariaLiveMessage}
+      </div>
     </div>
   );
 }
