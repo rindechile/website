@@ -859,11 +859,6 @@
         "compras_caras": 181,
         "compras_totales": 1972
     },
-    "I MUNICIPALIDAD DE ISLA DE PASCUA": {
-        "porcentaje_sobreprecio": 9.15,
-        "compras_caras": 174,
-        "compras_totales": 1901
-    },
     "I MUNICIPALIDAD DE TALCAHUANO": {
         "porcentaje_sobreprecio": 9.09,
         "compras_caras": 178,
@@ -978,11 +973,6 @@
         "porcentaje_sobreprecio": 7.69,
         "compras_caras": 2,
         "compras_totales": 26
-    },
-    "I MUNICIPALIDAD DE JUAN FERNANDEZ": {
-        "porcentaje_sobreprecio": 7.69,
-        "compras_caras": 45,
-        "compras_totales": 585
     },
     "I MUNICIPALIDAD DE SANTA JUANA": {
         "porcentaje_sobreprecio": 7.62,

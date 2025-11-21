@@ -77,7 +77,7 @@ export function ChileMap({
     }
     
     // Default: center on Chile with rotation on desktop
-    const rotation = isMobile ? 0 : 90; // Rotate 90° on desktop, 0° on mobile
+    const rotation = isMobile ? 0 : 5; // Rotate 90° on desktop, 0° on mobile
     return baseProjection
       .rotate([0, 0, rotation])
       .center([-71, -35])

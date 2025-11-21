@@ -30,9 +30,9 @@
         "compras_totales": 93560
     },
     "Region de Valparaiso": {
-        "porcentaje_sobreprecio": 7.83,
-        "compras_caras": 6468,
-        "compras_totales": 82640
+        "porcentaje_sobreprecio": 7.8,
+        "compras_caras": 6249,
+        "compras_totales": 80154
     },
     "Region de Coquimbo": {
         "porcentaje_sobreprecio": 7.69,
