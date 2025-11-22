@@ -3,6 +3,8 @@ import { Instrument_Sans } from "next/font/google";
 import "./styles/globals.css";
 import { Header } from "./components/Header";
 
+export const runtime = "edge";
+
 const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
   subsets: ["latin"],
