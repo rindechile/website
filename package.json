@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "generate:mapping": "tsx scripts/generate-municipality-mapping.ts",
-    "preinstall": "npx only-allow pnpm"
+    "preinstall": "npx only-allow pnpm",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.13.1",
@@ -29,6 +32,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/d3": "^7.4.3",
+    "@types/geojson": "^7946.0.16",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
