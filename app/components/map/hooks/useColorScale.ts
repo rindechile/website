@@ -33,10 +33,16 @@ export function useColorScale(options: UseColorScaleOptions): ColorScale {
     const range = isCountryView ? getRegionRange() : getMunicipalityRange();
     const tertiles = isCountryView ? getRegionTertiles() : getMunicipalityTertiles();
 
+    // Get CSS variable values from document
+    const styles = getComputedStyle(document.documentElement);
+    const colorBajo = styles.getPropertyValue('--map-tier-bajo').trim();
+    const colorMedio = styles.getPropertyValue('--map-tier-medio').trim();
+    const colorAlto = styles.getPropertyValue('--map-tier-alto').trim();
+
     const breakpoints = [
-      { threshold: tertiles[0], color: '#E5E7EB', texture: 'url(#lighter)', label: 'Bajo' },
-      { threshold: tertiles[1], color: '#E5E7EB', texture: 'url(#heavier)', label: 'Medio' },
-      { threshold: tertiles[2], color: '#E5E7EB', texture: 'url(#heavy)', label: 'Alto' },
+      { threshold: tertiles[0], color: colorBajo, label: 'Bajo' },
+      { threshold: tertiles[1], color: colorMedio, label: 'Medio' },
+      { threshold: tertiles[2], color: colorAlto, label: 'Alto' },
     ];
 
     setColorScale({

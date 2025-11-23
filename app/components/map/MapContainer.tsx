@@ -62,9 +62,17 @@ export function MapContainer() {
   }
 
   return (
-    <div className="w-full tablet:w-2/5 flex flex-col bg-card rounded-sm">
+    <div className="w-full tablet:w-2/5 flex flex-col bg-secondary text-secondary-foreground rounded-sm">
+      {/* Header */}
+      <div className="px-8 pt-8">
+        <h2 className="text-lg font-semibold mb-2">
+          Mapa de Anomalías
+        </h2>
+        <p className="text-sm">Visualiza las anomalías en los precios a nivel regional y municipal.</p>
+      </div>
+
       {/* Main Content: Map */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden py-4">
         <div className="w-full h-full flex flex-col">
           <div className="flex-1 overflow-hidden">
             <ChileMap
@@ -80,7 +88,7 @@ export function MapContainer() {
         </div>
       </div>
 
-      {/* Legend at Bottom */}
+      {/* Legend */}
       <div className="px-8 pb-8">
         <MapLegend colorScale={colorScale} nationalAverage={nationalAverage} />
       </div>

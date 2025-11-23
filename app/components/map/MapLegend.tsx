@@ -1,7 +1,5 @@
 import type { ColorScale } from '@/types/map';
 import { Badge } from '@/app/components/ui/badge';
-import { useRef } from 'react';
-import { useMapTextures } from './hooks/useMapTextures';
 
 interface MapLegendProps {
   colorScale: ColorScale;
@@ -11,16 +9,9 @@ interface MapLegendProps {
 
 export function MapLegend({ colorScale, showStatistics = true, nationalAverage }: MapLegendProps) {
   const { breakpoints } = colorScale;
-  const svgRef = useRef<SVGSVGElement>(null);
-  
-  // Apply textures to the legend SVG
-  useMapTextures(svgRef);
   
   return (
     <div className="w-full space-y-3">
-      {/* Hidden SVG for texture definitions */}
-      <svg ref={svgRef} width="0" height="0" style={{ position: 'absolute' }} />
-      
       {/* Legend Title and Stats */}
       <div className="flex items-center justify-between">
         <div className="text-xs font-light">

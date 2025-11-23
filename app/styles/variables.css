@@ -60,7 +60,7 @@
   --primary: oklch(0.9869 0.0025 345.21);
   --primary-foreground: oklch(0.1448 0 0);
 
-  --secondary: #2CFF8E;
+  --secondary: oklch(0.7297 0.1836 147.48);
   --secondary-foreground: #000;
 
   --muted: oklch(0.97 0 0);
@@ -85,7 +85,7 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
-  --tier-bajo: #888888;
-  --tier-medio: #333333;
-  --tier-alto: #000000;
+  --tier-bajo: oklch(0.7297 0.1836 147.48);
+  --tier-medio: oklch(0.5297 0.1836 147.48);
+  --tier-alto: oklch(0.3297 0.1836 147.48);
 }

@@ -8,7 +8,6 @@ import type {
   EnrichedMunicipalityData,
   ColorScale,
 } from '@/types/map';
-import { useMapTextures } from './hooks/useMapTextures';
 import { useViewportSize } from './hooks/useViewportSize';
 import { useTooltip } from './hooks/useTooltip';
 
@@ -36,7 +35,6 @@ export function ChileMap({
   const [dimensions, setDimensions] = useState({ width: 600, height: 600 });
   
   // Use custom hooks
-  useMapTextures(svgRef);
   const viewportSize = useViewportSize();
   const { tooltip, showTooltip, hideTooltip } = useTooltip();
 
