@@ -101,20 +101,16 @@ export function InfoSheet() {
               <p className="text-xs text-white/60 mb-2">Rangos de referencia:</p>
               <div className="space-y-1 text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded" style={{ backgroundColor: '#68CCDB' }}></div>
-                  <span className="text-white/80">Bajo (≤ 10%)</span>
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: '#FFBA00' }}></div>
+                  <span className="text-white/80">Bajo (≤ 12%)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded" style={{ backgroundColor: '#9DACC8' }}></div>
-                  <span className="text-white/80">Moderado (10% - 15%)</span>
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: '#FF0D5D' }}></div>
+                  <span className="text-white/80">Medio (12% - 18%)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded" style={{ backgroundColor: '#D28BA6' }}></div>
-                  <span className="text-white/80">Alto (15% - 25%)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded" style={{ backgroundColor: '#ED2472' }}></div>
-                  <span className="text-white/80">Muy Alto (&gt; 25%)</span>
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: '#720000' }}></div>
+                  <span className="text-white/80">Alto (&gt; 18%)</span>
                 </div>
               </div>
             </div>

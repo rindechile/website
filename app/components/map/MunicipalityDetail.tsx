@@ -30,14 +30,12 @@ function getSeverityInfo(percentage: number): {
   variant: 'default' | 'secondary' | 'destructive' | 'outline';
   color: string;
 } {
-  if (percentage <= 10) {
-    return { level: 'Bajo', variant: 'secondary', color: 'text-green-600' };
-  } else if (percentage <= 15) {
-    return { level: 'Moderado', variant: 'outline', color: 'text-yellow-600' };
-  } else if (percentage <= 25) {
-    return { level: 'Alto', variant: 'default', color: 'text-orange-600' };
+  if (percentage <= 12) {
+    return { level: 'Bajo', variant: 'secondary', color: 'text-yellow-600' };
+  } else if (percentage <= 18) {
+    return { level: 'Medio', variant: 'outline', color: 'text-pink-600' };
   } else {
-    return { level: 'Muy Alto', variant: 'destructive', color: 'text-red-600' };
+    return { level: 'Alto', variant: 'destructive', color: 'text-red-600' };
   }
 }
 

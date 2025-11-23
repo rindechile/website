@@ -210,11 +210,11 @@ export function getRegionOverpricingRange(): [number, number] {
 }
 
 /**
- * Calculates quintile breakpoints from a dataset (0-20%, 20-40%, etc.)
+ * Calculates tertile breakpoints from a dataset (0-33%, 33-67%, 67-100%)
  */
-export function calculateQuintileBreakpoints(percentages: number[]): number[] {
+export function calculateTertileBreakpoints(percentages: number[]): number[] {
   if (percentages.length === 0) {
-    return [0, 20, 40, 60, 80];
+    return [0, 33, 67];
   }
   
   const sorted = [...percentages].sort((a, b) => a - b);
@@ -222,29 +222,27 @@ export function calculateQuintileBreakpoints(percentages: number[]): number[] {
   
   return [
     sorted[0], // Min (0th percentile)
-    sorted[Math.floor(n * 0.2)], // 20th percentile
-    sorted[Math.floor(n * 0.4)], // 40th percentile
-    sorted[Math.floor(n * 0.6)], // 60th percentile
-    sorted[Math.floor(n * 0.8)], // 80th percentile
+    sorted[Math.floor(n * 0.33)], // 33rd percentile
+    sorted[Math.floor(n * 0.67)], // 67th percentile
   ];
 }
 
 /**
- * Gets quintile breakpoints for municipality data
+ * Gets tertile breakpoints for municipality data
  */
-export function getMunicipalityQuintileBreakpoints(): number[] {
+export function getMunicipalityTertileBreakpoints(): number[] {
   const data = getMunicipalityData();
   const percentages = Object.values(data).map(d => d.porcentaje_sobreprecio);
-  return calculateQuintileBreakpoints(percentages);
+  return calculateTertileBreakpoints(percentages);
 }
 
 /**
- * Gets quintile breakpoints for region data
+ * Gets tertile breakpoints for region data
  */
-export function getRegionQuintileBreakpoints(): number[] {
+export function getRegionTertileBreakpoints(): number[] {
   const data = getRegionData();
   const percentages = Object.values(data).map(d => d.porcentaje_sobreprecio);
-  return calculateQuintileBreakpoints(percentages);
+  return calculateTertileBreakpoints(percentages);
 }
 
 /**

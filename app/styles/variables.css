@@ -42,11 +42,9 @@
     --breakpoint-desktop: 1154px;
 
   /* Map tier colors */
-  --map-tier-muy-bajo: var(--tier-muy-bajo);
   --map-tier-bajo: var(--tier-bajo);
   --map-tier-medio: var(--tier-medio);
   --map-tier-alto: var(--tier-alto);
-  --map-tier-muy-alto: var(--tier-muy-alto);
 }
 
 :root {
@@ -84,9 +82,7 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   /* Map tier colors - Placeholder values, convert to oklch */
-  --tier-muy-bajo: #00A0DA;
-  --tier-bajo: #5FCE41;
-  --tier-medio: #989898;
-  --tier-alto: #F9B700;
-  --tier-muy-alto: #E33531;
+  --tier-bajo: #5ECF3F;
+  --tier-medio: #F9B700;
+  --tier-alto: #E62D20;
 }
