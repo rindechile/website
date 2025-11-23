@@ -41,7 +41,7 @@ export function MapContainer() {
   // Navigation state and handlers
   const {
     viewState,
-    selectedMunicipalityData,
+    selectedMunicipalityData, 
     handleRegionClick,
     handleMunicipalityClick,
     handleBackToCountry,
@@ -221,16 +221,10 @@ export function MapContainer() {
   }
 
   return (
-    <div className="w-full h-screen flex flex-col">
-      {/* Main Title */}
-      <div className="px-8 py-4 text-center">
-        <h2 className="text-2xl font-light text-white">
-          % de compras con sobreprecio por región en 2025
-        </h2>
-      </div>
+    <div className="w-2/5 flex flex-col">
 
       {/* Main Content: Map + Panel Grid */}
-      <div className="flex-1 px-8 pb-2 overflow-hidden">
+      <div className="flex-1 overflow-hidden">
         {viewState.level === 'country' ? (
           // Country view: Just the map
           <div className="w-full h-full flex flex-col">

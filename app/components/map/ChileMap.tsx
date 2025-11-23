@@ -84,22 +84,18 @@ export function ChileMap({
     }
     
     // Default: center on Chile with breakpoint-specific values
-    let center: [number, number];
     let scale: number;
     let rotate: [number, number, number];
     
     if (viewportSize === 'mobile') {
-      center = [-71, -38];
       scale = 700;
-      rotate = [71, 38, 0];
+      rotate = [71, 37, 0];
     } else if (viewportSize === 'tablet') {
-      center = [-71, -38];
-      scale = 850;
-      rotate = [71, 38, 90];
+      scale = 750;
+      rotate = [71, 37, 0];
     } else {
-      center = [-71, -38];
-      scale = 1350;
-      rotate = [71, 38, 90];
+      scale = 850;
+      rotate = [71, 37, 0];
     }
     
     return baseProjection
@@ -170,7 +166,7 @@ export function ChileMap({
   }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full rounded-sm">
+    <div ref={containerRef} className="relative rounded-sm bg-primary">
       <svg
         ref={svgRef}
         width={dimensions.width}
@@ -184,8 +180,8 @@ export function ChileMap({
                 key={region.feature.properties.codregion}
                 d={pathGenerator(region.feature) || ''}
                 fill={getColor(region.averageOverpricing)}
-                stroke="#010101"
-                strokeWidth={0.8}
+                stroke="#FF3301"
+                strokeWidth={1}
                 className="cursor-pointer transition-opacity hover:opacity-80"
                 onClick={() => handleRegionClick(region.feature.properties.codregion.toString())}
                 onMouseEnter={(e) =>
@@ -210,8 +206,8 @@ export function ChileMap({
                 key={municipality.feature.properties.cod_comuna}
                 d={pathGenerator(municipality.feature) || ''}
                 fill={getColor(municipality.data?.porcentaje_sobreprecio)}
-                stroke="#010101"
-                strokeWidth={0.8}
+                stroke="#FF3301"
+                strokeWidth={1}
                 className="cursor-pointer transition-opacity hover:opacity-80"
                 onClick={() => handleMunicipalityClick(municipality.feature.properties.cod_comuna.toString())}
                 onMouseEnter={(e) =>
