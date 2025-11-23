@@ -166,7 +166,7 @@ export function ChileMap({
   }, []);
 
   return (
-    <div ref={containerRef} className="relative rounded-sm bg-primary">
+    <div ref={containerRef} className="relative rounded-sm bg-card">
       <svg
         ref={svgRef}
         width={dimensions.width}
@@ -180,8 +180,8 @@ export function ChileMap({
                 key={region.feature.properties.codregion}
                 d={pathGenerator(region.feature) || ''}
                 fill={getColor(region.averageOverpricing)}
-                stroke="#FF3301"
-                strokeWidth={1}
+                stroke="#101010"
+                strokeWidth={1.1}
                 className="cursor-pointer transition-opacity hover:opacity-80"
                 onClick={() => handleRegionClick(region.feature.properties.codregion.toString())}
                 onMouseEnter={(e) =>
@@ -206,8 +206,8 @@ export function ChileMap({
                 key={municipality.feature.properties.cod_comuna}
                 d={pathGenerator(municipality.feature) || ''}
                 fill={getColor(municipality.data?.porcentaje_sobreprecio)}
-                stroke="#FF3301"
-                strokeWidth={1}
+                stroke="#101010"
+                strokeWidth={1.1}
                 className="cursor-pointer transition-opacity hover:opacity-80"
                 onClick={() => handleMunicipalityClick(municipality.feature.properties.cod_comuna.toString())}
                 onMouseEnter={(e) =>
