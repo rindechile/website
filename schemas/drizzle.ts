@@ -37,7 +37,7 @@ export const regions = sqliteTable("regions", {
 });
 
 export const municipalities = sqliteTable("municipalities", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+  id: integer("id").primaryKey(), // cod_comuna from GeoJSON
   regionId: text("region_id")
     .notNull()
     .references(() => regions.id),

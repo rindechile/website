@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { drizzle } from 'drizzle-orm/d1';
 import { eq, sql } from 'drizzle-orm';
 import {
@@ -10,14 +11,6 @@ import {
   municipalities,
 } from '@/schemas/drizzle';
 import type { TreemapHierarchy, TreemapNode } from '@/types/map';
-import treemapCountryData from '@/app/data/treemap_country.json';
-
-// Type for the Cloudflare environment
-interface CloudflareEnv {
-  DB: D1Database;
-}
-
-export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,24 +26,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // For country level, return pre-computed data
-    if (level === 'country') {
-      return NextResponse.json({
-        success: true,
-        data: treemapCountryData as TreemapHierarchy,
-      });
-    }
-
     // For region and municipality, validate code parameter
-    if (!code) {
+    if (level !== 'country' && !code) {
       return NextResponse.json(
         { success: false, error: 'Code parameter required for region/municipality level' },
         { status: 400 }
       );
     }
 
-    // Access Cloudflare D1 database
-    const env = process.env as unknown as CloudflareEnv;
+    // Access Cloudflare D1 database via context
+    const { env } = getCloudflareContext();
     if (!env.DB) {
       return NextResponse.json(
         { success: false, error: 'Database not available' },
@@ -62,11 +47,13 @@ export async function GET(request: NextRequest) {
 
     let data: TreemapHierarchy;
 
-    if (level === 'region') {
-      data = await getRegionTreemapData(db, code);
+    if (level === 'country') {
+      data = await getCountryTreemapData(db);
+    } else if (level === 'region') {
+      data = await getRegionTreemapData(db, code!);
     } else {
       // municipality level
-      data = await getMunicipalityTreemapData(db, parseInt(code));
+      data = await getMunicipalityTreemapData(db, parseInt(code!));
     }
 
     return NextResponse.json({
@@ -83,6 +70,25 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+async function getCountryTreemapData(db: ReturnType<typeof drizzle>): Promise<TreemapHierarchy> {
+  // Query all purchases across the entire country, grouped by segment
+  const results = await db
+    .select({
+      segmentId: segments.id,
+      segmentName: segments.name,
+      totalValue: sql<number>`SUM(${purchases.amount} * ${purchases.unit_price})`,
+    })
+    .from(purchases)
+    .innerJoin(commodities, eq(purchases.commodityId, commodities.id))
+    .innerJoin(classes, eq(commodities.classId, classes.id))
+    .innerJoin(families, eq(classes.familyId, families.id))
+    .innerJoin(segments, eq(families.segmentId, segments.id))
+    .groupBy(segments.id, segments.name)
+    .all();
+
+  return buildHierarchy(results, 'Chile');
 }
 
 async function getRegionTreemapData(db: ReturnType<typeof drizzle>, regionId: string): Promise<TreemapHierarchy> {
@@ -106,8 +112,9 @@ async function getRegionTreemapData(db: ReturnType<typeof drizzle>, regionId: st
   return buildHierarchy(results, `Region ${regionId}`);
 }
 
-async function getMunicipalityTreemapData(db: ReturnType<typeof drizzle>, municipalityId: number): Promise<TreemapHierarchy> {
+async function getMunicipalityTreemapData(db: ReturnType<typeof drizzle>, municipalityCode: number): Promise<TreemapHierarchy> {
   // Query all purchases for this municipality, grouped by segment only
+  // municipalityCode is the cod_comuna from GeoJSON, which should match municipality_id in purchases
   const results = await db
     .select({
       segmentId: segments.id,
@@ -119,11 +126,11 @@ async function getMunicipalityTreemapData(db: ReturnType<typeof drizzle>, munici
     .innerJoin(classes, eq(commodities.classId, classes.id))
     .innerJoin(families, eq(classes.familyId, families.id))
     .innerJoin(segments, eq(families.segmentId, segments.id))
-    .where(eq(purchases.municipalityId, municipalityId))
+    .where(eq(purchases.municipalityId, municipalityCode))
     .groupBy(segments.id, segments.name)
     .all();
 
-  return buildHierarchy(results, `Municipality ${municipalityId}`);
+  return buildHierarchy(results, `Municipality ${municipalityCode}`);
 }
 
 interface QueryResult {

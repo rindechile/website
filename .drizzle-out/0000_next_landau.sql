@@ -20,7 +20,7 @@ CREATE TABLE `families` (
 );
 --> statement-breakpoint
 CREATE TABLE `municipalities` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`id` integer PRIMARY KEY NOT NULL,
 	`region_id` text NOT NULL,
 	`name` text NOT NULL,
 	FOREIGN KEY (`region_id`) REFERENCES `regions`(`id`) ON UPDATE no action ON DELETE no action

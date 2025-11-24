@@ -4,385 +4,385 @@
     {
       "id": "50000000",
       "name": "Food Beverage and Tobacco Products",
-      "value": 7537276957,
-      "overpricingRate": 0,
-      "type": "segment"
-    },
-    {
-      "id": "93000000",
-      "name": "Politics and Civic Affairs Services",
-      "value": 12879331593,
+      "value": 5136751257,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "14000000",
       "name": "Paper Materials and Products",
-      "value": 14121783662,
+      "value": 10051643254,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "31000000",
       "name": "Manufacturing Components and Supplies",
-      "value": 11443100643,
+      "value": 7203177778,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "44000000",
       "name": "Office Equipment and Accessories and Supplies",
-      "value": 14114258942,
+      "value": 9376636724,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "82000000",
       "name": "Editorial and Design and Graphic and Fine Art Services",
-      "value": 15132029786,
+      "value": 10955882605,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "11000000",
       "name": "Mineral and Textile and Inedible Plant and Animal Materials",
-      "value": 25619430132,
+      "value": 23950416760,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "15000000",
       "name": "Fuels and Fuel Additives and Lubricants and Anti corrosive Materials",
-      "value": 13423162613,
+      "value": 9396870811,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "27000000",
       "name": "Tools and General Machinery",
-      "value": 2025525721,
+      "value": 1442900510,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "40000000",
       "name": "Distribution and Conditioning Systems and Equipment and Components",
-      "value": 6280147365,
+      "value": 3304122372,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "42000000",
       "name": "Medical Equipment and Accessories and Supplies",
-      "value": 25302754063,
+      "value": 15268884498,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "90000000",
       "name": "Travel and Food and Lodging and Entertainment Services",
-      "value": 11557154951,
+      "value": 8814544059,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "30000000",
       "name": "Structures and Building and Construction and Manufacturing Components and Supplies",
-      "value": 13042683112,
+      "value": 8891208822,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "60000000",
       "name": "Musical Instruments and Games and Toys and Arts and Crafts and Educational Equipment and Materials and Accessories and Supplies",
-      "value": 10873452679,
+      "value": 7366522490,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "32000000",
       "name": "Electronic Components and Supplies",
-      "value": 916297396,
+      "value": 529008861,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "70000000",
       "name": "Farming and Fishing and Forestry and Wildlife Contracting Services",
-      "value": 129666678993,
-      "overpricingRate": 0,
-      "type": "segment"
-    },
-    {
-      "id": "84000000",
-      "name": "Financial and Insurance Services",
-      "value": 8078811533,
+      "value": 67155462832,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "85000000",
       "name": "Healthcare Services",
-      "value": 23583999354,
-      "overpricingRate": 0,
-      "type": "segment"
-    },
-    {
-      "id": "25000000",
-      "name": "Commercial and Military and Private Vehicles and their Accessories and Components",
-      "value": 32264644594,
+      "value": 13055757274,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "39000000",
       "name": "Electrical Systems and Lighting and Components and Accessories and Supplies",
-      "value": 22834922230,
-      "overpricingRate": 0,
-      "type": "segment"
-    },
-    {
-      "id": "53000000",
-      "name": "Apparel and Luggage and Personal Care Products",
-      "value": 9434751704,
-      "overpricingRate": 0,
-      "type": "segment"
-    },
-    {
-      "id": "47000000",
-      "name": "Cleaning Equipment and Supplies",
-      "value": 7742272868,
+      "value": 17044555982,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "81000000",
       "name": "Engineering and Research and Technology Based Services",
-      "value": 19922114043,
+      "value": 12997087130,
+      "overpricingRate": 0,
+      "type": "segment"
+    },
+    {
+      "id": "84000000",
+      "name": "Financial and Insurance Services",
+      "value": 6235965383,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "78000000",
       "name": "Transportation and Storage and Mail Services",
-      "value": 62573749046,
+      "value": 42160085676,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "80000000",
       "name": "Management and Business Professionals and Administrative Services",
-      "value": 119043654285,
+      "value": 67175042567,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "23000000",
       "name": "Industrial Manufacturing and Processing Machinery and Accessories",
-      "value": 1412959992,
+      "value": 960278205,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "91000000",
       "name": "Personal and Domestic Services",
-      "value": 4502468755,
+      "value": 3523424788,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "76000000",
       "name": "Industrial Cleaning Services",
-      "value": 371915937555,
+      "value": 158024946912,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "43000000",
       "name": "Information Technology Broadcasting and Telecommunications",
-      "value": 32442191833,
+      "value": 22734666697,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "52000000",
       "name": "Domestic Appliances and Supplies and Consumer Electronic Products",
-      "value": 4515674135,
+      "value": 3118472934,
+      "overpricingRate": 0,
+      "type": "segment"
+    },
+    {
+      "id": "53000000",
+      "name": "Apparel and Luggage and Personal Care Products",
+      "value": 6518849863,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "41000000",
       "name": "Laboratory and Measuring and Observing and Testing Equipment",
-      "value": 11333537431,
-      "overpricingRate": 0,
-      "type": "segment"
-    },
-    {
-      "id": "51000000",
-      "name": "Drugs and Pharmaceutical Products",
-      "value": 3356851073,
-      "overpricingRate": 0,
-      "type": "segment"
-    },
-    {
-      "id": "73000000",
-      "name": "Industrial Production and Manufacturing Services",
-      "value": 5245347369,
-      "overpricingRate": 0,
-      "type": "segment"
-    },
-    {
-      "id": "46000000",
-      "name": "Defense and Law Enforcement and Security and Safety Equipment and Supplies",
-      "value": 23957328404,
+      "value": 6370714723,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "26000000",
       "name": "Power Generation and Distribution Machinery and Accessories",
-      "value": 5799164552,
+      "value": 2090962763,
+      "overpricingRate": 0,
+      "type": "segment"
+    },
+    {
+      "id": "93000000",
+      "name": "Politics and Civic Affairs Services",
+      "value": 10887003432,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "83000000",
       "name": "Public Utilities and Public Sector Related Services",
-      "value": 12286509168,
+      "value": 8630809792,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "12000000",
       "name": "Chemicals including Bio Chemicals and Gas Materials",
-      "value": 3267148784,
+      "value": 1895074074,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
-      "id": "86000000",
-      "name": "Education and Training Services",
-      "value": 7391791343,
+      "id": "47000000",
+      "name": "Cleaning Equipment and Supplies",
+      "value": 4944688941,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "56000000",
       "name": "Furniture and Furnishings",
-      "value": 8648216187,
+      "value": 5913591059,
+      "overpricingRate": 0,
+      "type": "segment"
+    },
+    {
+      "id": "46000000",
+      "name": "Defense and Law Enforcement and Security and Safety Equipment and Supplies",
+      "value": 17410771753,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "21000000",
       "name": "Farming and Fishing and Forestry and Wildlife Machinery and Accessories",
-      "value": 553331900,
+      "value": 482280613,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "20000000",
       "name": "Mining and Well Drilling Machinery and Accessories",
-      "value": 5720677861,
+      "value": 4140684812,
+      "overpricingRate": 0,
+      "type": "segment"
+    },
+    {
+      "id": "86000000",
+      "name": "Education and Training Services",
+      "value": 4309185458,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "72000000",
       "name": "Building and Facility Construction and Maintenance Services",
-      "value": 3098244665,
+      "value": 2112220526,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
-      "id": "49000000",
-      "name": "Sports and Recreational Equipment and Supplies and Accessories",
-      "value": 4537787164,
+      "id": "73000000",
+      "name": "Industrial Production and Manufacturing Services",
+      "value": 3408634321,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "92000000",
       "name": "National Defense and Public Order and Security and Safety Services",
-      "value": 62791277880,
+      "value": 48432514667,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
-      "id": "10000000",
-      "name": "Live Plant and Animal Material and Accessories and Supplies",
-      "value": 3543184710,
+      "id": "25000000",
+      "name": "Commercial and Military and Private Vehicles and their Accessories and Components",
+      "value": 22627834855,
+      "overpricingRate": 0,
+      "type": "segment"
+    },
+    {
+      "id": "51000000",
+      "name": "Drugs and Pharmaceutical Products",
+      "value": 1560097613,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "48000000",
       "name": "Service Industry Machinery and Equipment and Supplies",
-      "value": 1369520899,
+      "value": 1163681031,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "45000000",
       "name": "Printing and Photographic and Audio and Visual Equipment and Supplies",
-      "value": 2958442876,
+      "value": 2210544488,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
-      "id": "13000000",
-      "name": "Resin and Rosin and Rubber and Foam and Film and Elastomeric Materials",
-      "value": 750634313,
+      "id": "49000000",
+      "name": "Sports and Recreational Equipment and Supplies and Accessories",
+      "value": 3176115813,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "24000000",
       "name": "Material Handling and Conditioning and Storage Machinery and their Accessories and Supplies",
-      "value": 6334455270,
+      "value": 4793224685,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "22000000",
       "name": "Building and Construction Machinery and Accessories",
-      "value": 8543521542,
+      "value": 5775122497,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "55000000",
       "name": "Published Products",
-      "value": 3967020805,
+      "value": 2802602696,
+      "overpricingRate": 0,
+      "type": "segment"
+    },
+    {
+      "id": "10000000",
+      "name": "Live Plant and Animal Material and Accessories and Supplies",
+      "value": 2521843145,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "71000000",
       "name": "Mining and oil and gas services",
-      "value": 1090856973,
+      "value": 885034817,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "94000000",
       "name": "Organizations and Clubs",
-      "value": 1759600047,
+      "value": 899152144,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
-      "id": "54000000",
-      "name": "Timepieces and Jewelry and Gemstone Products",
-      "value": 45932834,
+      "id": "13000000",
+      "name": "Resin and Rosin and Rubber and Foam and Film and Elastomeric Materials",
+      "value": 539675729,
       "overpricingRate": 0,
       "type": "segment"
     },
     {
       "id": "77000000",
       "name": "Environmental Services",
-      "value": 1419167850,
+      "value": 566407465,
+      "overpricingRate": 0,
+      "type": "segment"
+    },
+    {
+      "id": "54000000",
+      "name": "Timepieces and Jewelry and Gemstone Products",
+      "value": 27495862,
       "overpricingRate": 0,
       "type": "segment"
     }

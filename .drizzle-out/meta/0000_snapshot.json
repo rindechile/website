@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "67fea49f-46e2-4eb7-939d-dc44bf8b18bd",
+  "id": "236f39a7-50c4-4951-b85a-08981dd7249f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "classes": {
@@ -147,7 +147,7 @@
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
-          "autoincrement": true
+          "autoincrement": false
         },
         "region_id": {
           "name": "region_id",
