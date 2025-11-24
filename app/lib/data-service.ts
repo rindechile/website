@@ -51,7 +51,7 @@ export async function loadRegionsGeoJSON(): Promise<RegionFeatureCollection> {
     if (!response.ok) {
       throw new Error(`Failed to load regions: ${response.statusText}`);
     }
-    return await response.json();
+    return await response.json() as RegionFeatureCollection;
   } catch (error) {
     console.error('Error loading regions GeoJSON:', error);
     throw new Error('Failed to load regions data');
@@ -74,7 +74,7 @@ export async function loadMunicipalitiesGeoJSON(
     if (!response.ok) {
       throw new Error(`Failed to load municipalities for region ${regionCode}: ${response.statusText}`);
     }
-    const data = await response.json();
+    const data = await response.json() as MunicipalityFeatureCollection;
     
     // Cache the result
     municipalityGeoJSONCache.set(regionCode, data);

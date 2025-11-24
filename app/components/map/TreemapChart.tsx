@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import type { TreemapNode, TreemapHierarchy } from '@/types/map';
+import { useFormatters } from '@/app/lib/hooks/useFormatters';
 
 interface TreemapChartProps {
   data: TreemapHierarchy;
@@ -36,6 +37,8 @@ export function TreemapChart({ data, width = 800, height = 500 }: TreemapChartPr
     x: number;
     y: number;
   } | null>(null);
+  
+  const { formatCurrency, formatPercentage } = useFormatters();
 
   useEffect(() => {
     if (!svgRef.current || !data) return;
@@ -219,19 +222,6 @@ export function TreemapChart({ data, width = 800, height = 500 }: TreemapChartPr
       setCurrentNode(breadcrumb.node || null);
       setBreadcrumbs(breadcrumbs.slice(0, index + 1));
     }
-  };
-
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('es-CL', {
-      style: 'currency',
-      currency: 'CLP',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
-
-  const formatPercentage = (value: number): string => {
-    return `${value.toFixed(2)}%`;
   };
 
   return (

@@ -15,6 +15,8 @@ import {
   TableRow,
 } from '@/app/components/ui/table';
 import { Badge } from '@/app/components/ui/badge';
+import { useFormatters } from '@/app/lib/hooks/useFormatters';
+import { useSeverityLevel } from '@/app/lib/hooks/useSeverityLevel';
 
 interface MunicipalityDetailProps {
   open: boolean;
@@ -24,21 +26,6 @@ interface MunicipalityDetailProps {
   data: MunicipalityData | null;
 }
 
-// Helper function to get severity level and badge variant
-function getSeverityInfo(percentage: number): {
-  level: string;
-  variant: 'default' | 'secondary' | 'destructive' | 'outline';
-  color: string;
-} {
-  if (percentage <= 12) {
-    return { level: 'Bajo', variant: 'secondary', color: 'text-yellow-600' };
-  } else if (percentage <= 18) {
-    return { level: 'Medio', variant: 'outline', color: 'text-pink-600' };
-  } else {
-    return { level: 'Alto', variant: 'destructive', color: 'text-red-600' };
-  }
-}
-
 export function MunicipalityDetail({
   open,
   onOpenChange,
@@ -46,6 +33,8 @@ export function MunicipalityDetail({
   regionName,
   data,
 }: MunicipalityDetailProps) {
+  const { formatNumber, formatPercentage } = useFormatters();
+  const severityInfo = useSeverityLevel(data?.porcentaje_sobreprecio ?? 0);
   if (!data) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -61,16 +50,6 @@ export function MunicipalityDetail({
       </Dialog>
     );
   }
-
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('es-CL').format(num);
-  };
-
-  const formatPercentage = (num: number) => {
-    return `${num.toFixed(2)}%`;
-  };
-
-  const severityInfo = getSeverityInfo(data.porcentaje_sobreprecio);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import type { DetailPanelData } from '@/app/contexts/MapContext';
 import {
   Table,
@@ -14,64 +13,39 @@ import { Badge } from '@/app/components/ui/badge';
 import { TreemapChart } from '@/app/components/map/TreemapChart';
 import { getTreemapData } from '@/app/lib/data-service';
 import type { TreemapHierarchy } from '@/types/map';
+import { useFormatters } from '@/app/lib/hooks/useFormatters';
+import { useSeverityLevel } from '@/app/lib/hooks/useSeverityLevel';
+import { useAsyncData } from '@/app/lib/hooks/useAsyncData';
 
 interface DetailPanelProps {
   data: DetailPanelData;
 }
 
-// Helper function to get severity level and badge variant
-function getSeverityInfo(percentage: number): {
-  level: string;
-  variant: 'default' | 'secondary' | 'destructive' | 'outline';
-  color: string;
-} {
-  if (percentage <= 12) {
-    return { level: 'Bajo', variant: 'secondary', color: 'text-yellow-600' };
-  } else if (percentage <= 18) {
-    return { level: 'Medio', variant: 'outline', color: 'text-pink-600' };
-  } else {
-    return { level: 'Alto', variant: 'destructive', color: 'text-red-600' };
-  }
-}
-
 export function DetailPanel({ data }: DetailPanelProps) {
-  const [treemapData, setTreemapData] = useState<TreemapHierarchy | null>(null);
-  const [loadingTreemap, setLoadingTreemap] = useState(false);
-  const [treemapError, setTreemapError] = useState<string | null>(null);
-
+  const { formatNumber, formatPercentage } = useFormatters();
+  
   // Fetch treemap data when detail panel data changes
-  useEffect(() => {
-    if (!data) {
-      setTreemapData(null);
-      return;
-    }
+  const { 
+    data: treemapData, 
+    loading: loadingTreemap, 
+    error: treemapError 
+  } = useAsyncData<TreemapHierarchy>(
+    async () => {
+      if (!data) return null;
 
-    const fetchTreemap = async () => {
-      setLoadingTreemap(true);
-      setTreemapError(null);
-
-      try {
-        let result: TreemapHierarchy | null = null;
-
-        if (data.level === 'country') {
-          result = await getTreemapData('country');
-        } else if (data.level === 'region') {
-          result = await getTreemapData('region', data.regionId);
-        } else if (data.level === 'municipality') {
-          result = await getTreemapData('municipality', data.municipalityId.toString());
-        }
-
-        setTreemapData(result);
-      } catch (error) {
-        console.error('Error fetching treemap:', error);
-        setTreemapError('Failed to load treemap data');
-      } finally {
-        setLoadingTreemap(false);
+      if (data.level === 'country') {
+        return await getTreemapData('country');
+      } else if (data.level === 'region') {
+        return await getTreemapData('region', data.regionId);
+      } else if (data.level === 'municipality') {
+        return await getTreemapData('municipality', data.municipalityId.toString());
       }
-    };
+      return null;
+    },
+    [data]
+  );
 
-    fetchTreemap();
-  }, [data]);
+  const severityInfo = useSeverityLevel(data?.data.porcentaje_sobreprecio ?? 0);
 
   // Empty state when no data
   if (!data) {
@@ -102,16 +76,6 @@ export function DetailPanel({ data }: DetailPanelProps) {
       </div>
     );
   }
-
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('es-CL').format(num);
-  };
-
-  const formatPercentage = (num: number) => {
-    return `${num.toFixed(2)}%`;
-  };
-
-  const severityInfo = getSeverityInfo(data.data.porcentaje_sobreprecio);
 
   // Get title and subtitle based on level
   const getTitle = () => {
