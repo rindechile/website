@@ -14,7 +14,9 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "drizzle:generate": "drizzle-kit generate",
     "drizzle:migrate": "drizzle-kit migrate",
-    "drizzle:dev": "drizzle-kit studio"
+    "drizzle:dev": "drizzle-kit studio",
+    "db:seed": "tsx scripts/seed-unspsc.ts",
+    "db:seed:remote": "tsx scripts/seed-unspsc.ts --remote"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.13.1",

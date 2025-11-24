@@ -2,6 +2,7 @@
 
 # data
 /schemas/data/data_with_expensive_flag.csv
+/schemas/data/clean_unspsc_data.csv
 
 # dependencies
 /node_modules
