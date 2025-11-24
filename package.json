@@ -16,7 +16,11 @@
     "drizzle:migrate": "drizzle-kit migrate",
     "drizzle:dev": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed-unspsc.ts",
-    "db:seed:remote": "tsx scripts/seed-unspsc.ts --remote"
+    "db:seed:remote": "tsx scripts/seed-unspsc.ts --remote",
+    "db:seed:data": "tsx scripts/seed-data-tables.ts",
+    "db:seed:data:remote": "tsx scripts/seed-data-tables.ts --remote",
+    "db:seed:purchases": "tsx scripts/seed-purchases-optimized.ts",
+    "db:seed:purchases:remote": "tsx scripts/seed-purchases-optimized.ts --remote"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.13.1",

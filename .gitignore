@@ -3,6 +3,7 @@
 # data
 /schemas/data/data_with_expensive_flag.csv
 /schemas/data/clean_unspsc_data.csv
+/scripts
 
 # dependencies
 /node_modules

@@ -1,8 +1,5 @@
 'use client';
 
-import { getRequestContext } from '@cloudflare/next-on-pages';
-import { drizzle } from 'drizzle-orm/d1';
-
 import type { DetailPanelData } from '@/app/contexts/MapContext';
 import {
   Table,
@@ -34,9 +31,6 @@ function getSeverityInfo(percentage: number): {
 }
 
 export function DetailPanel({ data }: DetailPanelProps) {
-
-  const { env } = getRequestContext();
-  const db = drizzle(env.DB);
 
   // Empty state when no data
   if (!data) {

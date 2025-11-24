@@ -153,9 +153,13 @@ export function normalizeRegionName(regionName: string): string {
     'Region de Magallanes y Antártica Chilena': 'Region de Magallanes y de la Antartica',
     'Region de Magallanes y de la Antártica Chilena': 'Region de Magallanes y de la Antartica',
     'Region de la Araucanía': 'Region de la Araucania',
+    'Region de La Araucanía': 'Region de la Araucania',
     'Region del Bío-Bío': 'Region del Biobio',
     'Region del Biobío': 'Region del Biobio',
     'Region de Ñuble': 'Region del Nuble',
+    'Region de Los Rios': 'Region de los Rios',
+    'Region de Los Ríos': 'Region de los Rios',
+    'Region de Los Lagos': 'Region de los Lagos',
   };
   
   // Check if there's a specific mapping
@@ -188,4 +192,33 @@ export function findRegionDataKey(
   );
   
   return match || null;
+}
+
+/**
+ * Maps normalized region names to display names with proper accents
+ */
+export const REGION_DISPLAY_NAMES: Record<string, string> = {
+  'Region de Tarapaca': 'Región de Tarapacá',
+  'Region de Antofagasta': 'Región de Antofagasta',
+  'Region de Atacama': 'Región de Atacama',
+  'Region de Coquimbo': 'Región de Coquimbo',
+  'Region de Valparaiso': 'Región de Valparaíso',
+  'Region del Libertador General Bernardo OHiggins': "Región del Libertador General Bernardo O'Higgins",
+  'Region del Maule': 'Región del Maule',
+  'Region del Biobio': 'Región del Bío-Bío',
+  'Region de la Araucania': 'Región de La Araucanía',
+  'Region de los Lagos': 'Región de Los Lagos',
+  'Region Aysen del General Carlos IbaNez del Campo': 'Región de Aysén del Gral. Carlos Ibáñez del Campo',
+  'Region de Magallanes y de la Antartica': 'Región de Magallanes y de la Antártica Chilena',
+  'Region Metropolitana de Santiago': 'Región Metropolitana de Santiago',
+  'Region de los Rios': 'Región de Los Ríos',
+  'Region de Arica y Parinacota': 'Región de Arica y Parinacota',
+  'Region del Nuble': 'Región de Ñuble',
+};
+
+/**
+ * Gets the display name for a normalized region name
+ */
+export function getRegionDisplayName(normalizedName: string): string {
+  return REGION_DISPLAY_NAMES[normalizedName] || normalizedName;
 }
