@@ -1,34 +1,30 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  navigationMenuTriggerStyle,
-} from "@/app/components/ui/navigation-menu"
 import { Button } from "../ui/button";
 
 export function Header() {
     return (
-        <header className="flex flex-row justify-between items-center">
-            <Link href="/" className="flex flex-row gap-3">
-                <Image
-                    src="/logo.svg"
-                    alt="Transparenta Logo"
-                    width={40}
-                    height={40}
-                    className="fill-foreground"
-                />
-                <h1 className="text-xl font-semibold">Vigil Chile</h1>
-            </Link>
+        <header className="flex flex-row justify-between items-center px-4 py-3">
+            <div className="flex flex-row gap-12">
+                <Link href="/" className="flex flex-row gap-2 tablet:gap-3 items-center flex-shrink-0">
+                    <Image
+                        src="/logo.svg"
+                        alt="Transparenta Logo"
+                        width={32}
+                        height={32}
+                        className="fill-foreground"
+                    />
+                    <h1 className="text-base tablet:text-xl font-semibold whitespace-nowrap">Vigil Chile</h1>
+                </Link>
 
-            <Button variant="ghost" size="lg">
-                Metodología
-            </Button>
-            
-            <Button>
-                Apóyanos con un like
+                <Button size="sm" variant="ghost" className="text-sm hidden tablet:block whitespace-nowrap">
+                    Metodología
+                </Button>
+            </div>
+
+            <Button size="sm" className="text-xs tablet:text-sm whitespace-nowrap">
+                Apóyanos
             </Button>
         </header>
     )

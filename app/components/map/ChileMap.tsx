@@ -73,14 +73,14 @@ export function ChileMap({
     let rotate: [number, number, number];
     
     if (viewportSize === 'mobile') {
-      scale = 700;
-      rotate = [71, 37, 0];
+      scale = 800;
+      rotate = [70.5, 37, 0];
     } else if (viewportSize === 'tablet') {
-      scale = 750;
-      rotate = [71, 37, 0];
+      scale = 800;
+      rotate = [70.5, 37, 0];
     } else {
       scale = 800;
-      rotate = [71, 37, 0];
+      rotate = [70.5, 37, 0];
     }
     
     return baseProjection
@@ -137,6 +137,10 @@ export function ChileMap({
     [onMunicipalityClick, viewState.level]
   );
 
+  // Get CSS variable values from document
+  const styles = getComputedStyle(document.documentElement);
+  const colorStroke = styles.getPropertyValue('--color-secondary').trim();
+
   return (
     <div ref={containerRef} className="relative">
       <svg
@@ -152,8 +156,8 @@ export function ChileMap({
                 key={region.feature.properties.codregion}
                 d={pathGenerator(region.feature) || ''}
                 fill={getFill(region.averageOverpricing)}
-                stroke="#101010"
-                strokeWidth={0.9}
+                stroke={colorStroke}
+                strokeWidth={0.6}
                 className="cursor-pointer transition-opacity hover:opacity-80"
                 onClick={() => handleRegionClick(region.feature.properties.codregion.toString())}
                 onMouseEnter={(e) =>
@@ -176,8 +180,8 @@ export function ChileMap({
                 key={municipality.feature.properties.cod_comuna}
                 d={pathGenerator(municipality.feature) || ''}
                 fill={getFill(municipality.data?.porcentaje_sobreprecio)}
-                stroke="#101010"
-                strokeWidth={1.1}
+                stroke={colorStroke}
+                strokeWidth={0.9}
                 className="cursor-pointer transition-opacity hover:opacity-80"
                 onClick={() => handleMunicipalityClick(municipality.feature.properties.cod_comuna.toString())}
                 onMouseEnter={(e) =>

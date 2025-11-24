@@ -1,6 +1,5 @@
 'use client';
 
-import MapContainerSuspense from "./components/map/MapContainerSuspense";
 import { MapProvider } from "./contexts/MapContext";
 import { ClientPageContent } from "./components/ClientPageContent";
 

@@ -94,12 +94,12 @@ export function DetailPanel({ data }: DetailPanelProps) {
   };
 
   return (
-    <div className="h-full overflow-y-auto rounded-sm bg-card p-8">
+    <div className="h-full overflow-y-auto rounded-xl bg-card p-8 border border-border">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1">
-            <h2 className="text-2xl font-semibold">{getTitle()}</h2>
+            <h2 className="text-xl font-semibold">{getTitle()}</h2>
             <p className="text-sm text-muted-foreground mt-1">{getSubtitle()}</p>
           </div>
           <Badge variant={severityInfo.variant} className="text-sm ml-4 shrink-0">

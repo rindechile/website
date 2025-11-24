@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${instrumentSans.variable} flex flex-col antialiased bg-background text-foreground p-6 tablet:p-8 gap-16`}
+        className={`${instrumentSans.variable} flex flex-col antialiased bg-background text-foreground p-6 tablet:p-8 gap-12 tablet:gap-16`}
       >
         <Header />
         {children}
