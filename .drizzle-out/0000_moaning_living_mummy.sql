@@ -1,20 +1,25 @@
+CREATE TABLE `categories` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`name` text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `classes` (
-	`id` text PRIMARY KEY NOT NULL,
-	`family_id` text NOT NULL,
+	`id` integer PRIMARY KEY NOT NULL,
+	`family_id` integer NOT NULL,
 	`name` text NOT NULL,
 	FOREIGN KEY (`family_id`) REFERENCES `families`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `commodities` (
-	`id` text PRIMARY KEY NOT NULL,
-	`class_id` text NOT NULL,
+	`id` integer PRIMARY KEY NOT NULL,
+	`class_id` integer NOT NULL,
 	`name` text NOT NULL,
 	FOREIGN KEY (`class_id`) REFERENCES `classes`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `families` (
-	`id` text PRIMARY KEY NOT NULL,
-	`segment_id` text NOT NULL,
+	`id` integer PRIMARY KEY NOT NULL,
+	`segment_id` integer NOT NULL,
 	`name` text NOT NULL,
 	FOREIGN KEY (`segment_id`) REFERENCES `segments`(`id`) ON UPDATE no action ON DELETE no action
 );
@@ -44,8 +49,10 @@ CREATE TABLE `regions` (
 );
 --> statement-breakpoint
 CREATE TABLE `segments` (
-	`id` text PRIMARY KEY NOT NULL,
-	`name` text NOT NULL
+	`id` integer PRIMARY KEY NOT NULL,
+	`category_id` integer NOT NULL,
+	`name` text NOT NULL,
+	FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `suppliers` (

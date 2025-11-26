@@ -9,6 +9,7 @@ import {
   families,
   segments,
   municipalities,
+  categories,
 } from '@/schemas/drizzle';
 import type { TreemapHierarchy, TreemapNode } from '@/types/map';
 
@@ -73,11 +74,11 @@ export async function GET(request: NextRequest) {
 }
 
 async function getCountryTreemapData(db: ReturnType<typeof drizzle>): Promise<TreemapHierarchy> {
-  // Query all purchases across the entire country, grouped by segment
+  // Query all purchases across the entire country, grouped by category only
   const results = await db
     .select({
-      segmentId: segments.id,
-      segmentName: segments.name,
+      categoryId: categories.id,
+      categoryName: categories.name,
       totalValue: sql<number>`SUM(${purchases.amount} * ${purchases.unit_price})`,
     })
     .from(purchases)
@@ -85,18 +86,19 @@ async function getCountryTreemapData(db: ReturnType<typeof drizzle>): Promise<Tr
     .innerJoin(classes, eq(commodities.classId, classes.id))
     .innerJoin(families, eq(classes.familyId, families.id))
     .innerJoin(segments, eq(families.segmentId, segments.id))
-    .groupBy(segments.id, segments.name)
+    .innerJoin(categories, eq(segments.categoryId, categories.id))
+    .groupBy(categories.id, categories.name)
     .all();
 
   return buildHierarchy(results, 'Chile');
 }
 
 async function getRegionTreemapData(db: ReturnType<typeof drizzle>, regionId: string): Promise<TreemapHierarchy> {
-  // Query all purchases for municipalities in this region, grouped by segment only
+  // Query all purchases for municipalities in this region, grouped by category only
   const results = await db
     .select({
-      segmentId: segments.id,
-      segmentName: segments.name,
+      categoryId: categories.id,
+      categoryName: categories.name,
       totalValue: sql<number>`SUM(${purchases.amount} * ${purchases.unit_price})`,
     })
     .from(purchases)
@@ -105,20 +107,21 @@ async function getRegionTreemapData(db: ReturnType<typeof drizzle>, regionId: st
     .innerJoin(classes, eq(commodities.classId, classes.id))
     .innerJoin(families, eq(classes.familyId, families.id))
     .innerJoin(segments, eq(families.segmentId, segments.id))
+    .innerJoin(categories, eq(segments.categoryId, categories.id))
     .where(eq(municipalities.regionId, regionId))
-    .groupBy(segments.id, segments.name)
+    .groupBy(categories.id, categories.name)
     .all();
 
   return buildHierarchy(results, `Region ${regionId}`);
 }
 
 async function getMunicipalityTreemapData(db: ReturnType<typeof drizzle>, municipalityCode: number): Promise<TreemapHierarchy> {
-  // Query all purchases for this municipality, grouped by segment only
+  // Query all purchases for this municipality, grouped by category only
   // municipalityCode is the cod_comuna from GeoJSON, which should match municipality_id in purchases
   const results = await db
     .select({
-      segmentId: segments.id,
-      segmentName: segments.name,
+      categoryId: categories.id,
+      categoryName: categories.name,
       totalValue: sql<number>`SUM(${purchases.amount} * ${purchases.unit_price})`,
     })
     .from(purchases)
@@ -126,27 +129,28 @@ async function getMunicipalityTreemapData(db: ReturnType<typeof drizzle>, munici
     .innerJoin(classes, eq(commodities.classId, classes.id))
     .innerJoin(families, eq(classes.familyId, families.id))
     .innerJoin(segments, eq(families.segmentId, segments.id))
+    .innerJoin(categories, eq(segments.categoryId, categories.id))
     .where(eq(purchases.municipalityId, municipalityCode))
-    .groupBy(segments.id, segments.name)
+    .groupBy(categories.id, categories.name)
     .all();
 
   return buildHierarchy(results, `Municipality ${municipalityCode}`);
 }
 
 interface QueryResult {
-  segmentId: string;
-  segmentName: string;
+  categoryId: number;
+  categoryName: string;
   totalValue: number;
 }
 
 function buildHierarchy(results: QueryResult[], name: string): TreemapHierarchy {
   // Build simple structure with segments only
   const children: TreemapNode[] = results.map(row => ({
-    id: row.segmentId,
-    name: row.segmentName,
+    id: row.categoryId,
+    name: row.categoryName,
     value: row.totalValue,
     overpricingRate: 0, // Not used for spending visualization
-    type: 'segment',
+    type: 'category',
   }));
 
   return {

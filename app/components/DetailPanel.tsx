@@ -155,7 +155,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
           </div>
         )}
         {!loadingTreemap && !treemapError && treemapData && (
-          <TreemapChart data={treemapData} width={700} height={400} />
+          <TreemapChart data={treemapData} />
         )}
         {!loadingTreemap && !treemapError && !treemapData && (
           <div className="text-center py-12">
@@ -164,48 +164,6 @@ export function DetailPanel({ data }: DetailPanelProps) {
         )}
       </div>
 
-      {/* Detailed Table */}
-      <div className="rounded-lg border border-border mb-6">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-2/3">Metric</TableHead>
-              <TableHead className="text-right">Value</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell className="font-medium">Overpriced Purchases</TableCell>
-              <TableCell className="text-right font-mono">
-                {formatNumber(data.data.compras_caras)}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-medium">Total Purchases</TableCell>
-              <TableCell className="text-right font-mono">
-                {formatNumber(data.data.compras_totales)}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-medium">Overpricing Rate</TableCell>
-              <TableCell className="text-right font-mono font-semibold">
-                {formatPercentage(data.data.porcentaje_sobreprecio)}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-medium">Ratio</TableCell>
-              <TableCell className="text-right font-mono text-sm text-muted-foreground">
-                {data.data.compras_caras} / {data.data.compras_totales}
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Footer Note */}
-      <p className="text-xs text-muted-foreground text-center">
-        Data represents the percentage of purchases with overpricing issues
-      </p>
     </div>
   );
 }

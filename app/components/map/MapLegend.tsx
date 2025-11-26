@@ -41,7 +41,7 @@ export function MapLegend({ colorScale, showStatistics = true, nationalAverage }
                 </svg>
               ) : (
                 <div 
-                  className="h-5 rounded-sm border border-[#101010]"
+                  className="h-5 rounded-sm"
                   style={{ backgroundColor: breakpoint.color }}
                 />
               )}

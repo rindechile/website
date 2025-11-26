@@ -7,8 +7,6 @@ import { useFormatters } from '@/app/lib/hooks/useFormatters';
 
 interface TreemapChartProps {
   data: TreemapHierarchy;
-  width?: number;
-  height?: number;
 }
 
 interface BreadcrumbItem {
@@ -24,12 +22,12 @@ interface TreemapLayoutNode extends d3.HierarchyNode<TreemapNode> {
   y1: number;
 }
 
-const MIN_RECT_SIZE = 24; // Minimum rectangle size in pixels
-
-export function TreemapChart({ data, width = 800, height = 500 }: TreemapChartProps) {
+export function TreemapChart({ data }: TreemapChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [currentNode, setCurrentNode] = useState<TreemapNode | null>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([{ name: data.name }]);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [tooltipData, setTooltipData] = useState<{
     name: string;
     value: number;
@@ -40,21 +38,35 @@ export function TreemapChart({ data, width = 800, height = 500 }: TreemapChartPr
   
   const { formatCurrency, formatPercentage } = useFormatters();
 
+  // Update dimensions on mount and resize
   useEffect(() => {
-    if (!svgRef.current || !data) return;
+    if (!containerRef.current) return;
 
-    // Get CSS color variables
-    const styles = getComputedStyle(document.documentElement);
-    const colorBajo = styles.getPropertyValue('--map-tier-bajo').trim();
-    const colorMedio = styles.getPropertyValue('--map-tier-medio').trim();
-    const colorAlto = styles.getPropertyValue('--map-tier-alto').trim();
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.clientWidth;
+        // Responsive height based on screen size
+        const height = window.innerWidth < 640 ? 300 : window.innerWidth < 1024 ? 350 : 400;
+        setDimensions({ width, height });
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
+  useEffect(() => {
+    if (!svgRef.current || !containerRef.current || !data || dimensions.width === 0) return;
+
+    const { width, height } = dimensions;
 
     // Create color scale based on purchase value
     const maxValue = d3.max(data.children, d => d.value) || 1;
     const colorScale = d3
       .scaleSequential()
       .domain([0, maxValue])
-      .interpolator(d3.interpolateBlues);
+      .interpolator(d3.interpolate('oklch(0.652 0.236 332.23)', 'oklch(0.652 0.236 138.18)'));
 
     // Clear previous content
     const svg = d3.select(svgRef.current);
@@ -73,7 +85,7 @@ export function TreemapChart({ data, width = 800, height = 500 }: TreemapChartPr
     // Create hierarchy
     const root = d3
       .hierarchy<TreemapNode>(displayData)
-      .sum(d => d.value)
+      .sum(d => d.children ? 0 : d.value) // Only sum leaf nodes
       .sort((a, b) => (b.value || 0) - (a.value || 0));
 
     // Create treemap layout
@@ -81,42 +93,21 @@ export function TreemapChart({ data, width = 800, height = 500 }: TreemapChartPr
       .treemap<TreemapNode>()
       .size([width, height])
       .paddingInner(2)
-      .paddingOuter(4)
+      .paddingOuter(2)
       .round(true);
 
     treemap(root);
 
-    // Filter nodes by minimum size and aggregate "Others"
+    // Get all leaves
     const leaves = root.leaves() as TreemapLayoutNode[];
-    const visibleLeaves: TreemapLayoutNode[] = [];
-    let othersValue = 0;
-    let othersCount = 0;
-    let othersExpensive = 0;
-    let othersPurchases = 0;
-
-    for (const leaf of leaves) {
-      const nodeWidth = leaf.x1 - leaf.x0;
-      const nodeHeight = leaf.y1 - leaf.y0;
-
-      if (nodeWidth >= MIN_RECT_SIZE && nodeHeight >= MIN_RECT_SIZE) {
-        visibleLeaves.push(leaf);
-      } else {
-        othersValue += leaf.value || 0;
-        othersCount++;
-        // Approximate expensive purchases for aggregation
-        const purchases = 1; // Each leaf represents aggregated data
-        othersPurchases += purchases;
-        othersExpensive += purchases * (leaf.data.overpricingRate / 100);
-      }
-    }
 
     // Create group for rectangles
     const g = svg.append('g');
 
-    // Render visible nodes
+    // Render all nodes
     const cells = g
       .selectAll('g')
-      .data(visibleLeaves)
+      .data(leaves)
       .join('g')
       .attr('transform', d => `translate(${d.x0},${d.y0})`);
 
@@ -160,53 +151,7 @@ export function TreemapChart({ data, width = 800, height = 500 }: TreemapChartPr
         // Truncate long names
         return name.length > 20 ? name.substring(0, 17) + '...' : name;
       });
-
-    // Add "Others" rectangle if there are small items
-    if (othersCount > 0) {
-      const othersOverpricingRate = othersPurchases > 0 
-        ? (othersExpensive / othersPurchases) * 100 
-        : 0;
-
-      // Position "Others" in bottom-right corner
-      const othersWidth = 120;
-      const othersHeight = 60;
-      const othersX = width - othersWidth - 4;
-      const othersY = height - othersHeight - 4;
-
-      const othersGroup = g
-        .append('g')
-        .attr('transform', `translate(${othersX},${othersY})`);
-
-      othersGroup
-        .append('rect')
-        .attr('width', othersWidth)
-        .attr('height', othersHeight)
-        .attr('fill', colorScale(othersValue))
-        .attr('stroke', '#fff')
-        .attr('stroke-width', 1)
-        .attr('stroke-dasharray', '4,2')
-        .attr('opacity', 0.8);
-
-      othersGroup
-        .append('text')
-        .attr('x', othersWidth / 2)
-        .attr('y', othersHeight / 2 - 6)
-        .attr('text-anchor', 'middle')
-        .attr('fill', 'currentColor')
-        .attr('font-size', '11px')
-        .attr('font-weight', '500')
-        .text(`Others (${othersCount})`);
-
-      othersGroup
-        .append('text')
-        .attr('x', othersWidth / 2)
-        .attr('y', othersHeight / 2 + 8)
-        .attr('text-anchor', 'middle')
-        .attr('fill', 'currentColor')
-        .attr('font-size', '9px')
-        .text(formatCurrency(othersValue));
-    }
-  }, [data, currentNode, width, height]);
+  }, [data, currentNode, dimensions]);
 
   const handleDrillDown = (node: TreemapNode) => {
     setCurrentNode(node);
@@ -256,12 +201,11 @@ export function TreemapChart({ data, width = 800, height = 500 }: TreemapChartPr
       </div>
 
       {/* SVG Treemap */}
-      <div className="relative">
+      <div ref={containerRef} className="relative w-full">
         <svg
           ref={svgRef}
-          width={width}
-          height={height}
-          className="rounded-lg bg-background border border-border"
+          className="w-full rounded-lg bg-background border border-border"
+          style={{ height: dimensions.height || 400 }}
         />
 
         {/* Tooltip */}
@@ -286,7 +230,7 @@ export function TreemapChart({ data, width = 800, height = 500 }: TreemapChartPr
       <div className="mt-4 flex items-center justify-center gap-4 text-xs">
         <span className="text-muted-foreground">Purchase Amount:</span>
         <div className="flex items-center gap-2">
-          <div className="h-4 w-8 rounded" style={{ background: 'linear-gradient(to right, #deebf7, #08519c)' }} />
+          <div className="h-4 w-8 rounded" style={{ background: 'linear-gradient(to right, oklch(0.652 0.236 332.23), oklch(0.652 0.236 138.18))' }} />
           <span>Low → High</span>
         </div>
       </div>

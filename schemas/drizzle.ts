@@ -1,30 +1,38 @@
 import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
 
 // UNSPSC Tables
+export const categories = sqliteTable("categories", {
+  id: integer("id").primaryKey(),
+  name: text("name").notNull(),
+});
+
 export const segments = sqliteTable("segments", {
-  id: text("id").primaryKey(),
+  id: integer("id").primaryKey(),
+  categoryId: integer("category_id")
+    .notNull()
+    .references(() => categories.id),
   name: text("name").notNull(),
 });
 
 export const families = sqliteTable("families", {
-  id: text("id").primaryKey(),
-  segmentId: text("segment_id")
+  id: integer("id").primaryKey(),
+  segmentId: integer("segment_id")
     .notNull()
     .references(() => segments.id),
   name: text("name").notNull(),
 });
 
 export const classes = sqliteTable("classes", {
-  id: text("id").primaryKey(),
-  familyId: text("family_id")
+  id: integer("id").primaryKey(),
+  familyId: integer("family_id")
     .notNull()
     .references(() => families.id),
   name: text("name").notNull(),
 });
 
 export const commodities = sqliteTable("commodities", {
-  id: text("id").primaryKey(),
-  classId: text("class_id")
+  id: integer("id").primaryKey(),
+  classId: integer("class_id")
     .notNull()
     .references(() => classes.id),
   name: text("name").notNull(),

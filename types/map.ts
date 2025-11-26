@@ -123,10 +123,10 @@ export interface TooltipData {
 }
 
 // Treemap visualization types
-export type TreemapNodeType = 'segment' | 'family' | 'class';
+export type TreemapNodeType = 'category' | 'segment' | 'family' | 'class';
 
 export interface TreemapNode {
-  id: string;
+  id: number;
   name: string;
   value: number; // Total purchase value (amount * unit_price)
   overpricingRate: number; // Percentage of overpriced purchases

@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
  * Seeds UNSPSC (United Nations Standard Products and Services Code) tables
- * Reads from clean_unspsc_data.csv and populates segments, families, classes, and commodities tables
+ * Reads from clean_unspsc_data.csv and populates categories, segments, families, classes, and commodities tables
  */
 
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
+import { categories, getCategoryIdForSegment } from './seed-categories';
 
 interface UnspscRow {
   segmentCode: string;
@@ -20,7 +21,8 @@ interface UnspscRow {
 }
 
 interface UnspscData {
-  segments: Map<string, string>;
+  categories: Map<number, string>;
+  segments: Map<string, { categoryId: number; name: string }>;
   families: Map<string, { segmentId: string; name: string }>;
   classes: Map<string, { familyId: string; name: string }>;
   commodities: Map<string, { classId: string; name: string }>;
@@ -49,15 +51,25 @@ function parseCsv(filePath: string): UnspscRow[] {
 }
 
 function extractUnspscData(rows: UnspscRow[]): UnspscData {
-  const segments = new Map<string, string>();
+  const categoriesMap = new Map<number, string>();
+  const segments = new Map<string, { categoryId: number; name: string }>();
   const families = new Map<string, { segmentId: string; name: string }>();
   const classes = new Map<string, { familyId: string; name: string }>();
   const commodities = new Map<string, { classId: string; name: string }>();
 
+  // Add all categories
+  for (const category of categories) {
+    categoriesMap.set(category.id, category.name);
+  }
+
   for (const row of rows) {
     // Add segment if not exists
     if (!segments.has(row.segmentCode)) {
-      segments.set(row.segmentCode, row.segmentName);
+      const categoryId = getCategoryIdForSegment(row.segmentCode);
+      segments.set(row.segmentCode, {
+        categoryId,
+        name: row.segmentName,
+      });
     }
 
     // Add family if not exists
@@ -83,7 +95,7 @@ function extractUnspscData(rows: UnspscRow[]): UnspscData {
     });
   }
 
-  return { segments, families, classes, commodities };
+  return { categories: categoriesMap, segments, families, classes, commodities };
 }
 
 function escapeSqlString(str: string): string {
@@ -93,15 +105,23 @@ function escapeSqlString(str: string): string {
 function generateSqlInserts(data: UnspscData, batchSize: number = 500): string {
   const lines: string[] = [];
 
-  // Insert segments
+  // Insert categories first
+  console.log(`Generating SQL for ${data.categories.size} categories...`);
+  const categoryEntries = Array.from(data.categories.entries());
+  const categoryValues = categoryEntries
+    .map(([id, name]) => `(${id}, '${escapeSqlString(name)}')`)
+    .join(',\n  ');
+  lines.push(`INSERT OR IGNORE INTO categories (id, name) VALUES\n  ${categoryValues};`);
+
+  // Insert segments with category_id
   console.log(`Generating SQL for ${data.segments.size} segments...`);
   const segmentEntries = Array.from(data.segments.entries());
   for (let i = 0; i < segmentEntries.length; i += batchSize) {
     const batch = segmentEntries.slice(i, i + batchSize);
     const values = batch
-      .map(([id, name]) => `('${id}', '${escapeSqlString(name)}')`)
+      .map(([id, { categoryId, name }]) => `('${id}', ${categoryId}, '${escapeSqlString(name)}')`)
       .join(',\n  ');
-    lines.push(`INSERT OR IGNORE INTO segments (id, name) VALUES\n  ${values};`);
+    lines.push(`INSERT OR IGNORE INTO segments (id, category_id, name) VALUES\n  ${values};`);
   }
 
   // Insert families
@@ -159,6 +179,7 @@ function main() {
   console.log('🔍 Extracting unique UNSPSC entities...');
   const data = extractUnspscData(rows);
   console.log(`✅ Found:`);
+  console.log(`   - ${data.categories.size} categories`);
   console.log(`   - ${data.segments.size} segments`);
   console.log(`   - ${data.families.size} families`);
   console.log(`   - ${data.classes.size} classes`);
