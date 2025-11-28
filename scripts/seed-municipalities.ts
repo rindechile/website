@@ -3,142 +3,84 @@
  * Seeds municipalities data
  * Reads from municipalities.csv and populates municipalities table
  */
-import { readFileSync, writeFileSync } from 'fs';
+
 import { join } from 'path';
-import { execSync } from 'child_process';
+import {
+  parseCsv,
+  escapeSqlString,
+  generateBatchedInserts,
+  runSeedScript,
+  isRemoteMode,
+  logCsvParsing,
+  logExtractionStart,
+  logExtractionResults,
+} from './seed-utils';
 
-interface MunicipalityRow {
-  id: string;
+interface Municipality {
+  id: number;
   name: string;
-  budget: string;
-  budget_per_capita: string;
-  region_id: string;
+  budget: number;
+  budget_per_capita: number;
+  region_id: number;
 }
 
-interface MunicipalityData {
-  municipalities: Map<string, {
-    id: number;
-    name: string;
-    budget: number;
-    budget_per_capita: number;
-    region_id: number;
-  }>;
-}
+function extractMunicipalityData(csvPath: string): Municipality[] {
+  // Parse CSV
+  const rows = parseCsv(csvPath);
+  logCsvParsing(csvPath, rows.length);
 
-function parseCsv(filePath: string): MunicipalityRow[] {
-  const content = readFileSync(filePath, 'utf-8');
-  const lines = content.trim().split('\n');
-  
-  // Skip header row
-  const rows = lines.slice(1);
-  
-  return rows.map(line => {
-    const parts = line.split(',');
-    return {
-      id: parts[0],
-      name: parts[1],
-      budget: parts[2],
-      budget_per_capita: parts[3],
-      region_id: parts[4],
-    };
-  });
-}
+  // Extract unique data
+  logExtractionStart('municipalities');
+  const municipalitiesMap = new Map<string, Municipality>();
 
-function extractMunicipalityData(rows: MunicipalityRow[]): MunicipalityData {
-  const municipalities = new Map<string, {
-    id: number;
-    name: string;
-    budget: number;
-    budget_per_capita: number;
-    region_id: number;
-  }>();
+  for (const parts of rows) {
+    const id = parts[0];
 
-  for (const row of rows) {
     // Skip if already exists
-    if (municipalities.has(row.id)) {
+    if (municipalitiesMap.has(id)) {
       continue;
     }
 
-    municipalities.set(row.id, {
-      id: parseInt(row.id, 10),
-      name: row.name,
-      budget: parseFloat(row.budget),
-      budget_per_capita: parseFloat(row.budget_per_capita),
-      region_id: parseInt(row.region_id, 10),
+    municipalitiesMap.set(id, {
+      id: parseInt(id, 10),
+      name: parts[1],
+      budget: parseFloat(parts[2]),
+      budget_per_capita: parseFloat(parts[3]),
+      region_id: parseInt(parts[4], 10),
     });
   }
 
-  return { municipalities };
+  const municipalities = Array.from(municipalitiesMap.values());
+  logExtractionResults({ municipalities: municipalities.length });
+
+  return municipalities;
 }
 
-function escapeSqlString(str: string): string {
-  return str.replace(/'/g, "''");
+function generateSql(csvPath: string): string {
+  const municipalities = extractMunicipalityData(csvPath);
+
+  return generateBatchedInserts(
+    'municipalities',
+    ['id', 'name', 'budget', 'budget_per_capita', 'region_id'],
+    municipalities,
+    (m) => `(${m.id}, '${escapeSqlString(m.name)}', ${m.budget}, ${m.budget_per_capita}, ${m.region_id})`,
+    { batchSize: 500 }
+  );
 }
 
-function generateSqlInserts(data: MunicipalityData, batchSize: number = 500): string {
-  const lines: string[] = [];
-
-  // Insert municipalities
-  console.log(`Generating SQL for ${data.municipalities.size} municipalities...`);
-  const municipalityEntries = Array.from(data.municipalities.entries());
-  
-  for (let i = 0; i < municipalityEntries.length; i += batchSize) {
-    const batch = municipalityEntries.slice(i, i + batchSize);
-    const values = batch
-      .map(([, { id, name, budget, budget_per_capita, region_id }]) => 
-        `(${id}, '${escapeSqlString(name)}', ${budget}, ${budget_per_capita}, ${region_id})`)
-      .join(',\n  ');
-    lines.push(`INSERT OR IGNORE INTO municipalities (id, name, budget, budget_per_capita, region_id) VALUES\n  ${values};`);
-  }
-
-  return lines.join('\n\n');
+async function main() {
+  await runSeedScript(
+    {
+      entityName: 'municipalities',
+      csvPath: join(__dirname, '..', 'schemas', 'data', 'municipalities.csv'),
+      sqlOutputPath: 'sql/seed-municipalities.sql',
+      isRemote: isRemoteMode(),
+    },
+    generateSql
+  );
 }
 
-function main() {
-  const isRemote = process.argv.includes('--remote');
-  const environment = isRemote ? 'remote' : 'local';
-  
-  console.log(`🌱 Seeding municipalities data to ${environment} database...\n`);
-
-  // Read CSV file
-  const csvPath = join(__dirname, '..', 'schemas', 'data', 'municipalities.csv');
-  console.log('📖 Reading CSV file...');
-  const rows = parseCsv(csvPath);
-  console.log(`✅ Parsed ${rows.length} rows\n`);
-
-  // Extract unique data
-  console.log('🔍 Extracting unique municipalities...');
-  const data = extractMunicipalityData(rows);
-  console.log(`✅ Found:`);
-  console.log(`   - ${data.municipalities.size} municipalities\n`);
-
-  // Generate SQL
-  console.log('📝 Generating SQL inserts...');
-  const sql = generateSqlInserts(data);
-  
-  // Write SQL file
-  const sqlPath = join(__dirname, 'sql/seed-municipalities.sql');
-  writeFileSync(sqlPath, sql, 'utf-8');
-  console.log(`✅ SQL file written to ${sqlPath}\n`);
-
-  // Execute via Wrangler
-  console.log(`🚀 Executing SQL via Wrangler (${environment})...`);
-  try {
-    const flag = isRemote ? '--remote' : '--local';
-    // Use database binding name 'DB' from wrangler.toml
-    const command = `wrangler d1 execute DB ${flag} --file=${sqlPath}`;
-    console.log(`Running: ${command}\n`);
-    
-    execSync(command, { 
-      stdio: 'inherit',
-      cwd: join(__dirname, '..')
-    });
-    
-    console.log(`\n✅ Successfully seeded municipalities data to ${environment} database!`);
-  } catch (error) {
-    console.error(`\n❌ Error executing SQL:`, error);
-    process.exit(1);
-  }
-}
-
-main();
+main().catch((error) => {
+  console.error('Fatal error:', error);
+  process.exit(1);
+});

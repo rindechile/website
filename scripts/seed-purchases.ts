@@ -4,167 +4,94 @@
  * Reads from purchase.csv and populates purchases table
  */
 
-import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { execSync } from 'child_process';
+import {
+  parseCsv,
+  escapeSqlString,
+  generateBatchedInserts,
+  runSeedScript,
+  isRemoteMode,
+  logCsvParsing,
+  logExtractionStart,
+  logExtractionResults,
+} from './seed-utils';
 
-interface PurchaseRow {
-  purchase_id: string;
-  purchase_code: string;
-  municipality_id: string;
+interface Purchase {
+  id: number;
+  chilecompra_code: string;
+  municipality_id: number;
   supplier_rut: string;
-  item_quantity: string;
-  unit_total_price: string;
-  is_expensive: string;
-  price_excess_amount: string;
-  price_excess_percentage: string;
-  item_id: string;
+  quantity: number;
+  unit_total_price: number;
+  is_expensive: boolean;
+  price_excess_amount: number;
+  price_excess_percentage: number;
+  item_id: number;
 }
 
-interface PurchaseData {
-  purchases: Map<string, {
-    purchase_id: number;
-    purchase_code: string;
-    municipality_id: number;
-    supplier_rut: string;
-    item_quantity: number;
-    unit_total_price: number;
-    is_expensive: boolean;
-    price_excess_amount: number;
-    price_excess_percentage: number;
-    item_id: number;
-  }>;
-}
+function extractPurchaseData(csvPath: string): Purchase[] {
+  // Parse CSV
+  const rows = parseCsv(csvPath);
+  logCsvParsing(csvPath, rows.length);
 
-function parseCsv(filePath: string): PurchaseRow[] {
-  const content = readFileSync(filePath, 'utf-8');
-  const lines = content.trim().split('\n');
-  
-  // Skip header row
-  const rows = lines.slice(1);
-  
-  return rows.map(line => {
-    const parts = line.split(',');
-    return {
-      purchase_id: parts[0],
-      purchase_code: parts[1],
-      municipality_id: parts[2],
-      supplier_rut: parts[3],
-      item_quantity: parts[4],
-      unit_total_price: parts[5],
-      is_expensive: parts[6],
-      price_excess_amount: parts[7],
-      price_excess_percentage: parts[8],
-      item_id: parts[9],
-    };
-  });
-}
+  // Extract unique data
+  logExtractionStart('purchases');
+  const purchasesMap = new Map<string, Purchase>();
 
-function extractPurchaseData(rows: PurchaseRow[]): PurchaseData {
-  const purchases = new Map<string, {
-    purchase_id: number;
-    purchase_code: string;
-    municipality_id: number;
-    supplier_rut: string;
-    item_quantity: number;
-    unit_total_price: number;
-    is_expensive: boolean;
-    price_excess_amount: number;
-    price_excess_percentage: number;
-    item_id: number;
-  }>();
+  for (const parts of rows) {
+    const id = parts[0];
 
-  for (const row of rows) {
     // Skip if already exists
-    if (purchases.has(row.purchase_id)) {
+    if (purchasesMap.has(id)) {
       continue;
     }
 
-    purchases.set(row.purchase_id, {
-      purchase_id: parseInt(row.purchase_id, 10),
-      purchase_code: row.purchase_code,
-      municipality_id: parseInt(row.municipality_id, 10),
-      supplier_rut: row.supplier_rut,
-      item_quantity: parseInt(row.item_quantity, 10),
-      unit_total_price: parseFloat(row.unit_total_price),
-      is_expensive: row.is_expensive.toLowerCase() === 'true',
-      price_excess_amount: parseFloat(row.price_excess_amount),
-      price_excess_percentage: parseFloat(row.price_excess_percentage),
-      item_id: parseInt(row.item_id, 10),
+    purchasesMap.set(id, {
+      id: parseInt(id, 10),
+      chilecompra_code: parts[1],
+      municipality_id: parseInt(parts[2], 10),
+      supplier_rut: parts[3],
+      quantity: parseInt(parts[4], 10),
+      unit_total_price: parseFloat(parts[5]),
+      is_expensive: parts[6].toLowerCase() === 'true',
+      price_excess_amount: parseFloat(parts[7]),
+      price_excess_percentage: parseFloat(parts[8]),
+      item_id: parseInt(parts[9], 10),
     });
   }
 
-  return { purchases };
+  const purchases = Array.from(purchasesMap.values());
+  logExtractionResults({ purchases: purchases.length });
+
+  return purchases;
 }
 
-function escapeSqlString(str: string): string {
-  return str.replace(/'/g, "''");
+function generateSql(csvPath: string): string {
+  const purchases = extractPurchaseData(csvPath);
+
+  return generateBatchedInserts(
+    'purchases',
+    ['id', 'chilecompra_code', 'municipality_id', 'supplier_rut', 'quantity', 'unit_total_price', 'is_expensive', 'price_excess_amount', 'price_excess_percentage', 'item_id'],
+    purchases,
+    (p) =>
+      `(${p.id}, '${escapeSqlString(p.chilecompra_code)}', ${p.municipality_id}, '${escapeSqlString(p.supplier_rut)}', ${p.quantity}, ${p.unit_total_price}, ${p.is_expensive ? 1 : 0}, ${p.price_excess_amount}, ${p.price_excess_percentage}, ${p.item_id})`,
+    { batchSize: 500 }
+  );
 }
 
-function generateSqlInserts(data: PurchaseData, batchSize: number = 500): string {
-  const lines: string[] = [];
-
-  // Insert purchases
-  console.log(`Generating SQL for ${data.purchases.size} purchases...`);
-  const purchaseEntries = Array.from(data.purchases.entries());
-  
-  for (let i = 0; i < purchaseEntries.length; i += batchSize) {
-    const batch = purchaseEntries.slice(i, i + batchSize);
-    const values = batch
-      .map(([, { purchase_id, purchase_code, municipality_id, supplier_rut, item_quantity, unit_total_price, is_expensive, price_excess_amount, price_excess_percentage, item_id }]) => 
-        `(${purchase_id}, '${escapeSqlString(purchase_code)}', ${municipality_id}, '${escapeSqlString(supplier_rut)}', ${item_quantity}, ${unit_total_price}, ${is_expensive ? 1 : 0}, ${price_excess_amount}, ${price_excess_percentage}, ${item_id})`)
-      .join(',\n  ');
-    lines.push(`INSERT OR IGNORE INTO purchases (id, chilecompra_code, municipality_id, supplier_rut, quantity, unit_total_price, is_expensive, price_excess_amount, price_excess_percentage, item_id) VALUES\n  ${values};`);
-  }
-
-  return lines.join('\n\n');
+async function main() {
+  await runSeedScript(
+    {
+      entityName: 'purchases',
+      csvPath: join(__dirname, '..', 'schemas', 'data', 'purchase.csv'),
+      sqlOutputPath: 'sql/seed-purchases.sql',
+      isRemote: isRemoteMode(),
+    },
+    generateSql
+  );
 }
 
-function main() {
-  const isRemote = process.argv.includes('--remote');
-  const environment = isRemote ? 'remote' : 'local';
-  
-  console.log(`🌱 Seeding purchases data to ${environment} database...\n`);
-
-  // Read CSV file
-  const csvPath = join(__dirname, '..', 'schemas', 'data', 'purchase.csv');
-  console.log('📖 Reading CSV file...');
-  const rows = parseCsv(csvPath);
-  console.log(`✅ Parsed ${rows.length} rows\n`);
-
-  // Extract unique data
-  console.log('🔍 Extracting unique purchases...');
-  const data = extractPurchaseData(rows);
-  console.log(`✅ Found:`);
-  console.log(`   - ${data.purchases.size} purchases\n`);
-
-  // Generate SQL
-  console.log('📝 Generating SQL inserts...');
-  const sql = generateSqlInserts(data);
-  
-  // Write SQL file
-  const sqlPath = join(__dirname, 'sql/seed-purchases.sql');
-  writeFileSync(sqlPath, sql, 'utf-8');
-  console.log(`✅ SQL file written to ${sqlPath}\n`);
-
-  // Execute via Wrangler
-  console.log(`🚀 Executing SQL via Wrangler (${environment})...`);
-  try {
-    const flag = isRemote ? '--remote' : '--local';
-    // Use database binding name 'DB' from wrangler.toml
-    const command = `wrangler d1 execute DB ${flag} --file=${sqlPath}`;
-    console.log(`Running: ${command}\n`);
-    
-    execSync(command, { 
-      stdio: 'inherit',
-      cwd: join(__dirname, '..')
-    });
-    
-    console.log(`\n✅ Successfully seeded purchases data to ${environment} database!`);
-  } catch (error) {
-    console.error(`\n❌ Error executing SQL:`, error);
-    process.exit(1);
-  }
-}
-
-main();
+main().catch((error) => {
+  console.error('Fatal error:', error);
+  process.exit(1);
+});

@@ -4,214 +4,185 @@
  * Reads from clean_unspsc_data.csv and populates categories, segments, families, classes, and commodities tables
  */
 
-import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { execSync } from 'child_process';
+import {
+  parseCsv,
+  escapeSqlString,
+  generateBatchedInserts,
+  runSeedScript,
+  isRemoteMode,
+  logCsvParsing,
+  logExtractionStart,
+  logExtractionResults,
+} from './seed-utils';
 import { categories, getCategoryIdForSegment } from './seed-categories';
 
-interface UnspscRow {
-  segmentCode: string;
-  segmentName: string;
-  familyCode: string;
-  familyName: string;
-  classCode: string;
-  className: string;
-  commodityCode: string;
-  commodityName: string;
-}
-
 interface UnspscData {
-  categories: Map<number, string>;
-  segments: Map<string, { categoryId: number; name: string }>;
-  families: Map<string, { segmentId: string; name: string }>;
-  classes: Map<string, { familyId: string; name: string }>;
-  commodities: Map<string, { classId: string; name: string }>;
+  categories: Array<{ id: number; name: string }>;
+  segments: Array<{ id: number; categoryId: number; name: string }>;
+  families: Array<{ id: number; segmentId: number; name: string }>;
+  classes: Array<{ id: number; familyId: number; name: string }>;
+  commodities: Array<{ id: number; classId: number; name: string }>;
 }
 
-function parseCsv(filePath: string): UnspscRow[] {
-  const content = readFileSync(filePath, 'utf-8');
-  const lines = content.trim().split('\n');
-  
-  // Skip header row
-  const rows = lines.slice(1);
-  
-  return rows.map(line => {
-    const parts = line.split(',');
-    return {
-      segmentCode: parts[0],
-      segmentName: parts[1],
-      familyCode: parts[2],
-      familyName: parts[3],
-      classCode: parts[4],
-      className: parts[5],
-      commodityCode: parts[6],
-      commodityName: parts[7],
-    };
-  });
-}
+function extractUnspscData(csvPath: string): UnspscData {
+  // Parse CSV
+  const rows = parseCsv(csvPath);
+  logCsvParsing(csvPath, rows.length);
 
-function extractUnspscData(rows: UnspscRow[]): UnspscData {
-  const categoriesMap = new Map<number, string>();
-  const segments = new Map<string, { categoryId: number; name: string }>();
-  const families = new Map<string, { segmentId: string; name: string }>();
-  const classes = new Map<string, { familyId: string; name: string }>();
-  const commodities = new Map<string, { classId: string; name: string }>();
+  // Extract unique data
+  logExtractionStart('UNSPSC entities');
 
-  // Add all categories
-  for (const category of categories) {
-    categoriesMap.set(category.id, category.name);
-  }
+  const segmentsMap = new Map<number, { id: number; categoryId: number; name: string }>();
+  const familiesMap = new Map<number, { id: number; segmentId: number; name: string }>();
+  const classesMap = new Map<number, { id: number; familyId: number; name: string }>();
+  const commoditiesMap = new Map<number, { id: number; classId: number; name: string }>();
 
-  for (const row of rows) {
+  for (const parts of rows) {
+    // Validate we have enough parts
+    if (parts.length < 8) {
+      console.warn(`Skipping invalid row with only ${parts.length} columns`);
+      continue;
+    }
+
+    const segmentCode = parseInt(parts[0], 10);
+    const familyCode = parseInt(parts[2], 10);
+    const classCode = parseInt(parts[4], 10);
+    const commodityCode = parseInt(parts[6], 10);
+
+    // Validate all codes are valid numbers
+    if (isNaN(segmentCode) || isNaN(familyCode) || isNaN(classCode) || isNaN(commodityCode)) {
+      console.warn(`Skipping row with invalid codes: segment=${parts[0]}, family=${parts[2]}, class=${parts[4]}, commodity=${parts[6]}`);
+      continue;
+    }
+
     // Add segment if not exists
-    if (!segments.has(row.segmentCode)) {
-      const categoryId = getCategoryIdForSegment(row.segmentCode);
-      segments.set(row.segmentCode, {
+    if (!segmentsMap.has(segmentCode)) {
+      const categoryId = getCategoryIdForSegment(parts[0]);
+      segmentsMap.set(segmentCode, {
+        id: segmentCode,
         categoryId,
-        name: row.segmentName,
+        name: parts[1],
       });
     }
 
     // Add family if not exists
-    if (!families.has(row.familyCode)) {
-      families.set(row.familyCode, {
-        segmentId: row.segmentCode,
-        name: row.familyName,
+    if (!familiesMap.has(familyCode)) {
+      familiesMap.set(familyCode, {
+        id: familyCode,
+        segmentId: segmentCode,
+        name: parts[3],
       });
     }
 
     // Add class if not exists
-    if (!classes.has(row.classCode)) {
-      classes.set(row.classCode, {
-        familyId: row.familyCode,
-        name: row.className,
+    if (!classesMap.has(classCode)) {
+      classesMap.set(classCode, {
+        id: classCode,
+        familyId: familyCode,
+        name: parts[5],
       });
     }
 
     // Add commodity
-    commodities.set(row.commodityCode, {
-      classId: row.classCode,
-      name: row.commodityName,
+    commoditiesMap.set(commodityCode, {
+      id: commodityCode,
+      classId: classCode,
+      name: parts[7],
     });
   }
 
-  return { categories: categoriesMap, segments, families, classes, commodities };
+  const categoriesArray = categories.map(c => ({ id: c.id, name: c.name }));
+  const segments = Array.from(segmentsMap.values());
+  const families = Array.from(familiesMap.values());
+  const classes = Array.from(classesMap.values());
+  const commodities = Array.from(commoditiesMap.values());
+
+  logExtractionResults({
+    categories: categoriesArray.length,
+    segments: segments.length,
+    families: families.length,
+    classes: classes.length,
+    commodities: commodities.length,
+  });
+
+  return { categories: categoriesArray, segments, families, classes, commodities };
 }
 
-function escapeSqlString(str: string): string {
-  return str.replace(/'/g, "''");
+function generateSql(csvPath: string): string {
+  const data = extractUnspscData(csvPath);
+  const sqlParts: string[] = [];
+
+  // Insert categories
+  const categoriesSql = generateBatchedInserts(
+    'categories',
+    ['id', 'name'],
+    data.categories,
+    (c) => `(${c.id}, '${escapeSqlString(c.name)}')`,
+    { batchSize: 500 }
+  );
+  sqlParts.push(categoriesSql);
+
+  // Insert segments (filter out any with NaN values)
+  const validSegments = data.segments.filter(s => !isNaN(s.id) && !isNaN(s.categoryId));
+  const segmentsSql = generateBatchedInserts(
+    'segments',
+    ['id', 'category_id', 'name'],
+    validSegments,
+    (s) => `(${s.id}, ${s.categoryId}, '${escapeSqlString(s.name)}')`,
+    { batchSize: 500 }
+  );
+  sqlParts.push(segmentsSql);
+
+  // Insert families (filter out any with NaN values)
+  const validFamilies = data.families.filter(f => !isNaN(f.id) && !isNaN(f.segmentId));
+  const familiesSql = generateBatchedInserts(
+    'families',
+    ['id', 'segment_id', 'name'],
+    validFamilies,
+    (f) => `(${f.id}, ${f.segmentId}, '${escapeSqlString(f.name)}')`,
+    { batchSize: 500 }
+  );
+  sqlParts.push(familiesSql);
+
+  // Insert classes (filter out any with NaN values)
+  const validClasses = data.classes.filter(c => !isNaN(c.id) && !isNaN(c.familyId));
+  const classesSql = generateBatchedInserts(
+    'classes',
+    ['id', 'family_id', 'name'],
+    validClasses,
+    (c) => `(${c.id}, ${c.familyId}, '${escapeSqlString(c.name)}')`,
+    { batchSize: 500 }
+  );
+  sqlParts.push(classesSql);
+
+  // Insert commodities (filter out any with NaN values)
+  const validCommodities = data.commodities.filter(c => !isNaN(c.id) && !isNaN(c.classId));
+  const commoditiesSql = generateBatchedInserts(
+    'commodities',
+    ['id', 'class_id', 'name'],
+    validCommodities,
+    (c) => `(${c.id}, ${c.classId}, '${escapeSqlString(c.name)}')`,
+    { batchSize: 500 }
+  );
+  sqlParts.push(commoditiesSql);
+
+  return sqlParts.join('\n\n');
 }
 
-function generateSqlInserts(data: UnspscData, batchSize: number = 500): string {
-  const lines: string[] = [];
-
-  // Insert categories first
-  console.log(`Generating SQL for ${data.categories.size} categories...`);
-  const categoryEntries = Array.from(data.categories.entries());
-  const categoryValues = categoryEntries
-    .map(([id, name]) => `(${id}, '${escapeSqlString(name)}')`)
-    .join(',\n  ');
-  lines.push(`INSERT OR IGNORE INTO categories (id, name) VALUES\n  ${categoryValues};`);
-
-  // Insert segments with category_id
-  console.log(`Generating SQL for ${data.segments.size} segments...`);
-  const segmentEntries = Array.from(data.segments.entries());
-  for (let i = 0; i < segmentEntries.length; i += batchSize) {
-    const batch = segmentEntries.slice(i, i + batchSize);
-    const values = batch
-      .map(([id, { categoryId, name }]) => `('${id}', ${categoryId}, '${escapeSqlString(name)}')`)
-      .join(',\n  ');
-    lines.push(`INSERT OR IGNORE INTO segments (id, category_id, name) VALUES\n  ${values};`);
-  }
-
-  // Insert families
-  console.log(`Generating SQL for ${data.families.size} families...`);
-  const familyEntries = Array.from(data.families.entries());
-  for (let i = 0; i < familyEntries.length; i += batchSize) {
-    const batch = familyEntries.slice(i, i + batchSize);
-    const values = batch
-      .map(([id, { segmentId, name }]) => 
-        `('${id}', '${segmentId}', '${escapeSqlString(name)}')`)
-      .join(',\n  ');
-    lines.push(`INSERT OR IGNORE INTO families (id, segment_id, name) VALUES\n  ${values};`);
-  }
-
-  // Insert classes
-  console.log(`Generating SQL for ${data.classes.size} classes...`);
-  const classEntries = Array.from(data.classes.entries());
-  for (let i = 0; i < classEntries.length; i += batchSize) {
-    const batch = classEntries.slice(i, i + batchSize);
-    const values = batch
-      .map(([id, { familyId, name }]) => 
-        `('${id}', '${familyId}', '${escapeSqlString(name)}')`)
-      .join(',\n  ');
-    lines.push(`INSERT OR IGNORE INTO classes (id, family_id, name) VALUES\n  ${values};`);
-  }
-
-  // Insert commodities
-  console.log(`Generating SQL for ${data.commodities.size} commodities...`);
-  const commodityEntries = Array.from(data.commodities.entries());
-  for (let i = 0; i < commodityEntries.length; i += batchSize) {
-    const batch = commodityEntries.slice(i, i + batchSize);
-    const values = batch
-      .map(([id, { classId, name }]) => 
-        `('${id}', '${classId}', '${escapeSqlString(name)}')`)
-      .join(',\n  ');
-    lines.push(`INSERT OR IGNORE INTO commodities (id, class_id, name) VALUES\n  ${values};`);
-  }
-
-  return lines.join('\n\n');
+async function main() {
+  await runSeedScript(
+    {
+      entityName: 'UNSPSC',
+      csvPath: join(__dirname, '..', 'schemas', 'data', 'clean_unspsc_data.csv'),
+      sqlOutputPath: 'sql/seed-unspsc.sql',
+      isRemote: isRemoteMode(),
+    },
+    generateSql
+  );
 }
 
-function main() {
-  const isRemote = process.argv.includes('--remote');
-  const environment = isRemote ? 'remote' : 'local';
-  
-  console.log(`🌱 Seeding UNSPSC data to ${environment} database...\n`);
-
-  // Read CSV file
-  const csvPath = join(__dirname, '..', 'schemas', 'data', 'clean_unspsc_data.csv');
-  console.log('📖 Reading CSV file...');
-  const rows = parseCsv(csvPath);
-  console.log(`✅ Parsed ${rows.length} rows\n`);
-
-  // Extract unique data
-  console.log('🔍 Extracting unique UNSPSC entities...');
-  const data = extractUnspscData(rows);
-  console.log(`✅ Found:`);
-  console.log(`   - ${data.categories.size} categories`);
-  console.log(`   - ${data.segments.size} segments`);
-  console.log(`   - ${data.families.size} families`);
-  console.log(`   - ${data.classes.size} classes`);
-  console.log(`   - ${data.commodities.size} commodities\n`);
-
-  // Generate SQL
-  console.log('📝 Generating SQL inserts...');
-  const sql = generateSqlInserts(data);
-  
-  // Write SQL file
-  const sqlPath = join(__dirname, 'sql/seed-unspsc.sql');
-  writeFileSync(sqlPath, sql, 'utf-8');
-  console.log(`✅ SQL file written to ${sqlPath}\n`);
-
-  // Execute via Wrangler
-  console.log(`🚀 Executing SQL via Wrangler (${environment})...`);
-  try {
-    const flag = isRemote ? '--remote' : '--local';
-    // Use database binding name 'DB' from wrangler.toml
-    const command = `wrangler d1 execute DB ${flag} --file=${sqlPath}`;
-    console.log(`Running: ${command}\n`);
-    
-    execSync(command, { 
-      stdio: 'inherit',
-      cwd: join(__dirname, '..')
-    });
-    
-    console.log(`\n✅ Successfully seeded UNSPSC data to ${environment} database!`);
-  } catch (error) {
-    console.error(`\n❌ Error executing SQL:`, error);
-    process.exit(1);
-  }
-}
-
-main();
+main().catch((error) => {
+  console.error('Fatal error:', error);
+  process.exit(1);
+});

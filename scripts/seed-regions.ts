@@ -4,129 +4,77 @@
  * Reads from region.csv and populates regions table
  */
 
-import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { execSync } from 'child_process';
+import {
+  parseCsv,
+  escapeSqlString,
+  generateBatchedInserts,
+  runSeedScript,
+  isRemoteMode,
+  logCsvParsing,
+  logExtractionStart,
+  logExtractionResults,
+} from './seed-utils';
 
-interface RegionRow {
-  id: string;
+interface Region {
+  id: number;
   name: string;
 }
 
-interface RegionData {
-  regions: Map<number, {
-    id: number;
-    name: string;
-  }>;
-}
+function extractRegionData(csvPath: string): Region[] {
+  // Parse CSV
+  const rows = parseCsv(csvPath);
+  logCsvParsing(csvPath, rows.length);
 
-function parseCsv(filePath: string): RegionRow[] {
-  const content = readFileSync(filePath, 'utf-8');
-  const lines = content.trim().split('\n');
-  
-  // Skip header row
-  const rows = lines.slice(1);
-  
-  return rows.map(line => {
-    const parts = line.split(',');
-    return {
-      id: parts[0],
-      name: parts[1],
-    };
-  });
-}
+  // Extract unique data
+  logExtractionStart('regions');
+  const regionsMap = new Map<number, Region>();
 
-function extractRegionData(rows: RegionRow[]): RegionData {
-  const regions = new Map<number, {
-    id: number;
-    name: string;
-  }>();
+  for (const parts of rows) {
+    const regionId = parseInt(parts[0], 10);
 
-  for (const row of rows) {
-    const regionId = parseInt(row.id, 10);
-    
     // Skip if already exists
-    if (regions.has(regionId)) {
+    if (regionsMap.has(regionId)) {
       continue;
     }
 
-    regions.set(regionId, {
+    regionsMap.set(regionId, {
       id: regionId,
-      name: row.name,
+      name: parts[1],
     });
   }
 
-  return { regions };
+  const regions = Array.from(regionsMap.values());
+  logExtractionResults({ regions: regions.length });
+
+  return regions;
 }
 
-function escapeSqlString(str: string): string {
-  return str.replace(/'/g, "''");
+function generateSql(csvPath: string): string {
+  const regions = extractRegionData(csvPath);
+
+  return generateBatchedInserts(
+    'regions',
+    ['id', 'name'],
+    regions,
+    (region) => `(${region.id}, '${escapeSqlString(region.name)}')`,
+    { batchSize: 500 }
+  );
 }
 
-function generateSqlInserts(data: RegionData, batchSize: number = 500): string {
-  const lines: string[] = [];
-
-  // Insert regions
-  console.log(`Generating SQL for ${data.regions.size} regions...`);
-  const regionEntries = Array.from(data.regions.entries());
-  
-  for (let i = 0; i < regionEntries.length; i += batchSize) {
-    const batch = regionEntries.slice(i, i + batchSize);
-    const values = batch
-      .map(([, { id, name }]) => 
-        `(${id}, '${escapeSqlString(name)}')`)
-      .join(',\n  ');
-    lines.push(`INSERT OR IGNORE INTO regions (id, name) VALUES\n  ${values};`);
-  }
-
-  return lines.join('\n\n');
+async function main() {
+  await runSeedScript(
+    {
+      entityName: 'regions',
+      csvPath: join(__dirname, '..', 'schemas', 'data', 'region.csv'),
+      sqlOutputPath: 'sql/seed-region.sql',
+      isRemote: isRemoteMode(),
+    },
+    generateSql
+  );
 }
 
-function main() {
-  const isRemote = process.argv.includes('--remote');
-  const environment = isRemote ? 'remote' : 'local';
-  
-  console.log(`🌱 Seeding regions data to ${environment} database...\n`);
-
-  // Read CSV file
-  const csvPath = join(__dirname, '..', 'schemas', 'data', 'region.csv');
-  console.log('📖 Reading CSV file...');
-  const rows = parseCsv(csvPath);
-  console.log(`✅ Parsed ${rows.length} rows\n`);
-
-  // Extract unique data
-  console.log('🔍 Extracting unique regions...');
-  const data = extractRegionData(rows);
-  console.log(`✅ Found:`);
-  console.log(`   - ${data.regions.size} regions\n`);
-
-  // Generate SQL
-  console.log('📝 Generating SQL inserts...');
-  const sql = generateSqlInserts(data);
-  
-  // Write SQL file
-  const sqlPath = join(__dirname, 'sql/seed-region.sql');
-  writeFileSync(sqlPath, sql, 'utf-8');
-  console.log(`✅ SQL file written to ${sqlPath}\n`);
-
-  // Execute via Wrangler
-  console.log(`🚀 Executing SQL via Wrangler (${environment})...`);
-  try {
-    const flag = isRemote ? '--remote' : '--local';
-    // Use database binding name 'DB' from wrangler.toml
-    const command = `wrangler d1 execute DB ${flag} --file=${sqlPath}`;
-    console.log(`Running: ${command}\n`);
-    
-    execSync(command, { 
-      stdio: 'inherit',
-      cwd: join(__dirname, '..')
-    });
-    
-    console.log(`\n✅ Successfully seeded regions data to ${environment} database!`);
-  } catch (error) {
-    console.error(`\n❌ Error executing SQL:`, error);
-    process.exit(1);
-  }
-}
-
-main();
+main().catch((error) => {
+  console.error('Fatal error:', error);
+  process.exit(1);
+});
