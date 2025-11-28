@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "5d817125-9bc9-41b4-acbe-ab1bb078c89e",
+  "id": "b029c53b-eb70-4619-a595-6b2344f40ce4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "categories": {
@@ -163,6 +163,79 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "items": {
+      "name": "items",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "commodity_id": {
+          "name": "commodity_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "expected_min_range": {
+          "name": "expected_min_range",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "expected_max_range": {
+          "name": "expected_max_range",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "max_acceptable_price": {
+          "name": "max_acceptable_price",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "has_sufficient_data": {
+          "name": "has_sufficient_data",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "items_commodity_id_commodities_id_fk": {
+          "name": "items_commodity_id_commodities_id_fk",
+          "tableFrom": "items",
+          "tableTo": "commodities",
+          "columnsFrom": [
+            "commodity_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "municipalities": {
       "name": "municipalities",
       "columns": {
@@ -175,7 +248,7 @@
         },
         "region_id": {
           "name": "region_id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -185,6 +258,20 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "budget": {
+          "name": "budget",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "budget_per_capita": {
+          "name": "budget_per_capita",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         }
       },
@@ -216,7 +303,14 @@
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
-          "autoincrement": true
+          "autoincrement": false
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "municipality_id": {
           "name": "municipality_id",
@@ -225,30 +319,51 @@
           "notNull": true,
           "autoincrement": false
         },
-        "supplier_id": {
-          "name": "supplier_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "commodity_id": {
-          "name": "commodity_id",
+        "supplier_rut": {
+          "name": "supplier_rut",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "amount": {
-          "name": "amount",
+        "quantity": {
+          "name": "quantity",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "unit_price": {
-          "name": "unit_price",
+        "unit_total_price": {
+          "name": "unit_total_price",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_expensive": {
+          "name": "is_expensive",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "price_excess_amount": {
+          "name": "price_excess_amount",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "price_excess_percentage": {
+          "name": "price_excess_percentage",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "chilecompra_code": {
+          "name": "chilecompra_code",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -256,6 +371,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "purchases_item_id_items_id_fk": {
+          "name": "purchases_item_id_items_id_fk",
+          "tableFrom": "purchases",
+          "tableTo": "items",
+          "columnsFrom": [
+            "item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "purchases_municipality_id_municipalities_id_fk": {
           "name": "purchases_municipality_id_municipalities_id_fk",
           "tableFrom": "purchases",
@@ -269,28 +397,15 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "purchases_supplier_id_suppliers_id_fk": {
-          "name": "purchases_supplier_id_suppliers_id_fk",
+        "purchases_supplier_rut_suppliers_rut_fk": {
+          "name": "purchases_supplier_rut_suppliers_rut_fk",
           "tableFrom": "purchases",
           "tableTo": "suppliers",
           "columnsFrom": [
-            "supplier_id"
+            "supplier_rut"
           ],
           "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "purchases_commodity_id_commodities_id_fk": {
-          "name": "purchases_commodity_id_commodities_id_fk",
-          "tableFrom": "purchases",
-          "tableTo": "commodities",
-          "columnsFrom": [
-            "commodity_id"
-          ],
-          "columnsTo": [
-            "id"
+            "rut"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -305,7 +420,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": false
@@ -372,18 +487,25 @@
     "suppliers": {
       "name": "suppliers",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
+        "rut": {
+          "name": "rut",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "autoincrement": true
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "size": {
+          "name": "size",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         }
       },
