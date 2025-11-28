@@ -13,10 +13,9 @@ interface ItemRow {
   expected_max_range: string;
   max_acceptable_price: string;
   commodity_id: string;
-  commodity_name: string;
-  onu_code: string;
-  item_name: string;
-  sufficient_data: string;
+  id: string;
+  name: string;
+  has_sufficient_data: string;
 }
 
 interface ItemData {
@@ -25,10 +24,9 @@ interface ItemData {
     expected_max_range: number;
     max_acceptable_price: number;
     commodity_id: string;
-    commodity_name: string;
-    onu_code: string;
-    item_name: string;
-    sufficient_data: boolean;
+    id: number;
+    name: string;
+    has_sufficient_data: number;
   }>;
 }
 
@@ -46,10 +44,9 @@ function parseCsv(filePath: string): ItemRow[] {
       expected_max_range: parts[1],
       max_acceptable_price: parts[2],
       commodity_id: parts[3],
-      commodity_name: parts[4],
-      onu_code: parts[5],
-      item_name: parts[6],
-      sufficient_data: parts[7],
+      id: parts[4],
+      name: parts[5],
+      has_sufficient_data: parts[7],
     };
   });
 }
@@ -60,27 +57,27 @@ function extractItemData(rows: ItemRow[]): ItemData {
     expected_max_range: number;
     max_acceptable_price: number;
     commodity_id: string;
-    commodity_name: string;
-    onu_code: string;
-    item_name: string;
-    sufficient_data: boolean;
+    id: number;
+    name: string;
+    has_sufficient_data: number;
   }>();
 
   for (const row of rows) {
     // Skip if already exists
-    if (items.has(row.onu_code)) {
+    if (items.has(row.id)) {
       continue;
     }
 
-    items.set(row.onu_code, {
+    const hasData = (row.has_sufficient_data || '').toString().trim().toLowerCase() === 'true' ? 1 : 0;
+
+    items.set(row.id, {
       expected_min_range: parseInt(row.expected_min_range, 10),
       expected_max_range: parseInt(row.expected_max_range, 10),
       max_acceptable_price: parseFloat(row.max_acceptable_price),
       commodity_id: row.commodity_id,
-      commodity_name: row.commodity_name,
-      onu_code: row.onu_code,
-      item_name: row.item_name,
-      sufficient_data: row.sufficient_data.toLowerCase() === 'true',
+      id: parseInt(row.id, 10),
+      name: row.name,
+      has_sufficient_data: hasData,
     });
   }
 
@@ -101,10 +98,10 @@ function generateSqlInserts(data: ItemData, batchSize: number = 500): string {
   for (let i = 0; i < itemEntries.length; i += batchSize) {
     const batch = itemEntries.slice(i, i + batchSize);
     const values = batch
-      .map(([, { expected_min_range, expected_max_range, max_acceptable_price, commodity_id, commodity_name, onu_code, item_name, sufficient_data }]) => 
-        `(${expected_min_range}, ${expected_max_range}, ${max_acceptable_price}, '${escapeSqlString(commodity_id)}', '${escapeSqlString(commodity_name)}', '${escapeSqlString(onu_code)}', '${escapeSqlString(item_name)}', ${sufficient_data ? 1 : 0})`)
+      .map(([, { expected_min_range, expected_max_range, max_acceptable_price, commodity_id, id, name, has_sufficient_data }]) => 
+        `(${expected_min_range}, ${expected_max_range}, ${max_acceptable_price}, '${escapeSqlString(commodity_id)}', ${id}, '${escapeSqlString(name)}', ${has_sufficient_data ? 1 : 0})`)
       .join(',\n  ');
-    lines.push(`INSERT OR IGNORE INTO items (expected_min_range, expected_max_range, max_acceptable_price, commodity_id, commodity_name, onu_code, item_name, sufficient_data) VALUES\n  ${values};`);
+    lines.push(`INSERT OR IGNORE INTO items (expected_min_range, expected_max_range, max_acceptable_price, commodity_id, id, name, has_sufficient_data) VALUES\n  ${values};`);
   }
 
   return lines.join('\n\n');
@@ -117,7 +114,7 @@ function main() {
   console.log(`🌱 Seeding items data to ${environment} database...\n`);
 
   // Read CSV file
-  const csvPath = join(__dirname, '..', 'schemas', 'data', 'products.csv');
+  const csvPath = join(__dirname, '..', 'schemas', 'data', 'tipo_producto.csv');
   console.log('📖 Reading CSV file...');
   const rows = parseCsv(csvPath);
   console.log(`✅ Parsed ${rows.length} rows\n`);
@@ -133,7 +130,7 @@ function main() {
   const sql = generateSqlInserts(data);
   
   // Write SQL file
-  const sqlPath = join(__dirname, 'seed-items.sql');
+  const sqlPath = join(__dirname, 'sql/seed-items.sql');
   writeFileSync(sqlPath, sql, 'utf-8');
   console.log(`✅ SQL file written to ${sqlPath}\n`);
 

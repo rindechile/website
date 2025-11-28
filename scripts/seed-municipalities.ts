@@ -117,7 +117,7 @@ function main() {
   const sql = generateSqlInserts(data);
   
   // Write SQL file
-  const sqlPath = join(__dirname, 'seed-municipalities.sql');
+  const sqlPath = join(__dirname, 'sql/seed-municipalities.sql');
   writeFileSync(sqlPath, sql, 'utf-8');
   console.log(`✅ SQL file written to ${sqlPath}\n`);
 

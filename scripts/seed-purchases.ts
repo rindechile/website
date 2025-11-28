@@ -13,7 +13,6 @@ interface PurchaseRow {
   purchase_code: string;
   municipality_id: string;
   supplier_rut: string;
-  commodity_code: string;
   item_quantity: string;
   unit_total_price: string;
   is_expensive: string;
@@ -28,7 +27,6 @@ interface PurchaseData {
     purchase_code: string;
     municipality_id: number;
     supplier_rut: string;
-    commodity_code: string;
     item_quantity: number;
     unit_total_price: number;
     is_expensive: boolean;
@@ -52,13 +50,12 @@ function parseCsv(filePath: string): PurchaseRow[] {
       purchase_code: parts[1],
       municipality_id: parts[2],
       supplier_rut: parts[3],
-      commodity_code: parts[4],
-      item_quantity: parts[5],
-      unit_total_price: parts[6],
-      is_expensive: parts[7],
-      price_excess_amount: parts[8],
-      price_excess_percentage: parts[9],
-      item_id: parts[10],
+      item_quantity: parts[4],
+      unit_total_price: parts[5],
+      is_expensive: parts[6],
+      price_excess_amount: parts[7],
+      price_excess_percentage: parts[8],
+      item_id: parts[9],
     };
   });
 }
@@ -69,7 +66,6 @@ function extractPurchaseData(rows: PurchaseRow[]): PurchaseData {
     purchase_code: string;
     municipality_id: number;
     supplier_rut: string;
-    commodity_code: string;
     item_quantity: number;
     unit_total_price: number;
     is_expensive: boolean;
@@ -89,13 +85,12 @@ function extractPurchaseData(rows: PurchaseRow[]): PurchaseData {
       purchase_code: row.purchase_code,
       municipality_id: parseInt(row.municipality_id, 10),
       supplier_rut: row.supplier_rut,
-      commodity_code: row.commodity_code,
       item_quantity: parseInt(row.item_quantity, 10),
       unit_total_price: parseFloat(row.unit_total_price),
       is_expensive: row.is_expensive.toLowerCase() === 'true',
       price_excess_amount: parseFloat(row.price_excess_amount),
       price_excess_percentage: parseFloat(row.price_excess_percentage),
-      item_id: row.item_id,
+      item_id: parseInt(row.item_id, 10),
     });
   }
 
@@ -116,10 +111,10 @@ function generateSqlInserts(data: PurchaseData, batchSize: number = 500): string
   for (let i = 0; i < purchaseEntries.length; i += batchSize) {
     const batch = purchaseEntries.slice(i, i + batchSize);
     const values = batch
-      .map(([, { purchase_id, purchase_code, municipality_id, supplier_rut, commodity_code, item_quantity, unit_total_price, is_expensive, price_excess_amount, price_excess_percentage, item_id }]) => 
-        `(${purchase_id}, '${escapeSqlString(purchase_code)}', ${municipality_id}, '${escapeSqlString(supplier_rut)}', '${escapeSqlString(commodity_code)}', ${item_quantity}, ${unit_total_price}, ${is_expensive ? 1 : 0}, ${price_excess_amount}, ${price_excess_percentage}, ${item_id})`)
+      .map(([, { purchase_id, purchase_code, municipality_id, supplier_rut, item_quantity, unit_total_price, is_expensive, price_excess_amount, price_excess_percentage, item_id }]) => 
+        `(${purchase_id}, '${escapeSqlString(purchase_code)}', ${municipality_id}, '${escapeSqlString(supplier_rut)}', ${item_quantity}, ${unit_total_price}, ${is_expensive ? 1 : 0}, ${price_excess_amount}, ${price_excess_percentage}, ${item_id})`)
       .join(',\n  ');
-    lines.push(`INSERT OR IGNORE INTO purchases (purchase_id, purchase_code, municipality_id, supplier_rut, commodity_code, item_quantity, unit_total_price, is_expensive, price_excess_amount, price_excess_percentage, item_id) VALUES\n  ${values};`);
+    lines.push(`INSERT OR IGNORE INTO purchases (id, chilecompra_code, municipality_id, supplier_rut, quantity, unit_total_price, is_expensive, price_excess_amount, price_excess_percentage, item_id) VALUES\n  ${values};`);
   }
 
   return lines.join('\n\n');
@@ -148,7 +143,7 @@ function main() {
   const sql = generateSqlInserts(data);
   
   // Write SQL file
-  const sqlPath = join(__dirname, 'seed-purchases.sql');
+  const sqlPath = join(__dirname, 'sql/seed-purchases.sql');
   writeFileSync(sqlPath, sql, 'utf-8');
   console.log(`✅ SQL file written to ${sqlPath}\n`);
 

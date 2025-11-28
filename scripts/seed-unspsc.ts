@@ -190,7 +190,7 @@ function main() {
   const sql = generateSqlInserts(data);
   
   // Write SQL file
-  const sqlPath = join(__dirname, 'seed-unspsc.sql');
+  const sqlPath = join(__dirname, 'sql/seed-unspsc.sql');
   writeFileSync(sqlPath, sql, 'utf-8');
   console.log(`✅ SQL file written to ${sqlPath}\n`);
 
