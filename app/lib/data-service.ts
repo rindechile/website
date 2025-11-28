@@ -327,26 +327,31 @@ export async function preloadMunicipalityData(regionCode: number): Promise<void>
  * Fetches treemap data for visualization
  * @param level - 'country', 'region', or 'municipality'
  * @param code - Region ID or municipality ID (required for region/municipality)
+ * @param categoryId - Category ID for drilling down to segments (optional)
  */
 export async function getTreemapData(
   level: 'country' | 'region' | 'municipality',
-  code?: string
+  code?: string,
+  categoryId?: number
 ): Promise<TreemapHierarchy | null> {
   try {
     const params = new URLSearchParams({ level });
     if (code) {
       params.append('code', code);
     }
+    if (categoryId !== undefined) {
+      params.append('categoryId', categoryId.toString());
+    }
 
     const response = await fetch(`/api/treemap?${params.toString()}`);
-    
+
     if (!response.ok) {
       console.error(`Failed to fetch treemap data: ${response.statusText}`);
       return null;
     }
 
     const result: TreemapResponse = await response.json();
-    
+
     if (!result.success || !result.data) {
       console.error('Treemap API returned unsuccessful response:', result.error);
       return null;

@@ -24,11 +24,11 @@ interface DetailPanelProps {
 export function DetailPanel({ data }: DetailPanelProps) {
   const { formatNumber, formatPercentage } = useFormatters();
   
-  // Fetch treemap data when detail panel data changes
-  const { 
-    data: treemapData, 
-    loading: loadingTreemap, 
-    error: treemapError 
+  // Fetch initial treemap data when detail panel data changes
+  const {
+    data: treemapData,
+    loading: loadingTreemap,
+    error: treemapError
   } = useAsyncData<TreemapHierarchy>(
     async () => {
       if (!data) return null;
@@ -44,6 +44,19 @@ export function DetailPanel({ data }: DetailPanelProps) {
     },
     [data]
   );
+
+  // Get level and code for TreemapChart props
+  const getTreemapProps = () => {
+    if (!data) return { level: 'country' as const, code: undefined };
+
+    if (data.level === 'country') {
+      return { level: 'country' as const, code: undefined };
+    } else if (data.level === 'region') {
+      return { level: 'region' as const, code: data.regionId };
+    } else {
+      return { level: 'municipality' as const, code: data.municipalityId.toString() };
+    }
+  };
 
   const severityInfo = useSeverityLevel(data?.data.porcentaje_sobreprecio ?? 0);
 
@@ -155,7 +168,11 @@ export function DetailPanel({ data }: DetailPanelProps) {
           </div>
         )}
         {!loadingTreemap && !treemapError && treemapData && (
-          <TreemapChart data={treemapData} />
+          <TreemapChart
+            data={treemapData}
+            level={getTreemapProps().level}
+            code={getTreemapProps().code}
+          />
         )}
         {!loadingTreemap && !treemapError && !treemapData && (
           <div className="text-center py-12">
