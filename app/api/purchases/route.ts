@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { drizzle } from 'drizzle-orm/d1';
-import { purchases, municipalities, items, suppliers } from '@/schemas/drizzle';
+import { purchases, municipalities, items } from '@/schemas/drizzle';
 import { desc, eq, sql } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
@@ -49,16 +49,16 @@ export async function GET(request: NextRequest) {
         chilecompra_code: purchases.chilecompra_code,
         item_name: items.name,
         municipality_name: municipalities.name,
-        supplier_name: suppliers.name,
         quantity: purchases.quantity,
         unit_total_price: purchases.unit_total_price,
         total_price: sql<number>`${purchases.quantity} * ${purchases.unit_total_price}`,
         price_excess_percentage: purchases.price_excess_percentage,
+        expected_min_range: items.expected_min_range,
+        expected_max_range: items.expected_max_range,
       })
       .from(purchases)
       .innerJoin(items, eq(purchases.item_id, items.id))
       .innerJoin(municipalities, eq(purchases.municipality_id, municipalities.id))
-      .innerJoin(suppliers, eq(purchases.supplier_rut, suppliers.rut))
       .$dynamic();
 
     // Apply filters based on level

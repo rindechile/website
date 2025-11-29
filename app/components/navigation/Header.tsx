@@ -15,7 +15,7 @@ export function Header() {
                         height={32}
                         className="fill-foreground"
                     />
-                    <h1 className="text-base tablet:text-xl font-semibold whitespace-nowrap">Vigil Chile</h1>
+                    <h1 className="text-base tablet:text-xl font-semibold whitespace-nowrap">Rinde Chile</h1>
                 </Link>
             </div>
 

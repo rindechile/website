@@ -91,4 +91,5 @@
   --tier-bajo: oklch(0.8869 0.0025 345.21);
   --tier-medio: oklch(0.5448 0 0);
   --tier-alto: oklch(0.1448 0 0);
+  --tier-alto-var: #FF3B01;
 }

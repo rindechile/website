@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { drizzle } from 'drizzle-orm/d1';
-import { purchases, municipalities, items, suppliers } from '@/schemas/drizzle';
+import { purchases, municipalities, items } from '@/schemas/drizzle';
 import { eq } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
@@ -49,34 +49,21 @@ export async function GET(request: NextRequest) {
       .innerJoin(municipalities, eq(purchases.municipality_id, municipalities.id))
       .$dynamic();
 
-    // Build base query for suppliers
-    let suppliersQuery = db
-      .selectDistinct({
-        name: suppliers.name,
-      })
-      .from(purchases)
-      .innerJoin(suppliers, eq(purchases.supplier_rut, suppliers.rut))
-      .innerJoin(municipalities, eq(purchases.municipality_id, municipalities.id))
-      .$dynamic();
-
     // Apply filters based on level
     if (level === 'municipality' && municipalityId) {
       const municipalityIdInt = parseInt(municipalityId);
       itemsQuery = itemsQuery.where(eq(purchases.municipality_id, municipalityIdInt));
       municipalitiesQuery = municipalitiesQuery.where(eq(purchases.municipality_id, municipalityIdInt));
-      suppliersQuery = suppliersQuery.where(eq(purchases.municipality_id, municipalityIdInt));
     } else if (level === 'region' && regionId) {
       const regionIdInt = parseInt(regionId);
       itemsQuery = itemsQuery.where(eq(municipalities.region_id, regionIdInt));
       municipalitiesQuery = municipalitiesQuery.where(eq(municipalities.region_id, regionIdInt));
-      suppliersQuery = suppliersQuery.where(eq(municipalities.region_id, regionIdInt));
     }
 
     // Execute all queries in parallel
-    const [itemsResults, municipalitiesResults, suppliersResults] = await Promise.all([
+    const [itemsResults, municipalitiesResults] = await Promise.all([
       itemsQuery.orderBy(items.name).all(),
       municipalitiesQuery.orderBy(municipalities.name).all(),
-      suppliersQuery.orderBy(suppliers.name).all(),
     ]);
 
     return NextResponse.json({
@@ -84,7 +71,6 @@ export async function GET(request: NextRequest) {
       data: {
         items: itemsResults.map(r => r.name),
         municipalities: municipalitiesResults.map(r => r.name),
-        suppliers: suppliersResults.map(r => r.name),
       },
       filter: {
         level: level || 'country',

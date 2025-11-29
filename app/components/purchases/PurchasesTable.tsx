@@ -9,7 +9,6 @@ import { PurchasesTableSkeleton } from "./PurchasesTableSkeleton";
 export type FilterOptions = {
   items: string[];
   municipalities: string[];
-  suppliers: string[];
 };
 
 export function PurchasesTable() {
@@ -17,7 +16,6 @@ export function PurchasesTable() {
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     items: [],
     municipalities: [],
-    suppliers: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -132,7 +130,7 @@ export function PurchasesTable() {
 
   return (
     <div className="container mx-auto py-10">
-      <h2 className="text-2xl font-bold mb-4">{getTitle()}</h2>
+      <h2 className="text-xl font-bold mb-4">{getTitle()}</h2>
       <DataTable columns={columns} data={data} filterOptions={filterOptions} />
     </div>
   );
