@@ -1,6 +1,8 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown } from "lucide-react";
+import { Button } from "@/app/components/ui/button";
 
 export type Purchase = {
   chilecompra_code: string;
@@ -16,23 +18,73 @@ export type Purchase = {
 export const columns: ColumnDef<Purchase>[] = [
   {
     accessorKey: "chilecompra_code",
-    header: "ChileCompra Code",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          ChileCompra Code
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: "item_name",
-    header: "Item Name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Item Name
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: "municipality_name",
-    header: "Municipality Name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Municipality Name
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: "supplier_name",
-    header: "Supplier Name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Supplier Name
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: "quantity",
-    header: "Quantity",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Quantity
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const quantity = row.getValue("quantity") as number;
       return new Intl.NumberFormat("es-CL").format(quantity);
@@ -40,7 +92,17 @@ export const columns: ColumnDef<Purchase>[] = [
   },
   {
     accessorKey: "unit_total_price",
-    header: "Unit Price",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Unit Price
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const price = row.getValue("unit_total_price") as number | null;
       if (price === null) return "N/A";
@@ -54,7 +116,17 @@ export const columns: ColumnDef<Purchase>[] = [
   },
   {
     accessorKey: "total_price",
-    header: "Total Price",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Total Price
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const price = row.getValue("total_price") as number | null;
       if (price === null) return "N/A";
@@ -68,7 +140,17 @@ export const columns: ColumnDef<Purchase>[] = [
   },
   {
     accessorKey: "price_excess_percentage",
-    header: "Excess %",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Excess %
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const percentage = row.getValue("price_excess_percentage") as number | null;
       if (percentage === null) return "N/A";

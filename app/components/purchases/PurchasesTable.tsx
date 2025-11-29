@@ -6,8 +6,19 @@ import { columns, type Purchase } from "./columns";
 import { useMapContext } from "../../contexts/MapContext";
 import { PurchasesTableSkeleton } from "./PurchasesTableSkeleton";
 
+export type FilterOptions = {
+  items: string[];
+  municipalities: string[];
+  suppliers: string[];
+};
+
 export function PurchasesTable() {
   const [data, setData] = useState<Purchase[]>([]);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    items: [],
+    municipalities: [],
+    suppliers: [],
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { detailPanelData } = useMapContext();
@@ -15,7 +26,7 @@ export function PurchasesTable() {
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchPurchases() {
+    async function fetchData() {
       try {
         setLoading(true);
         setError(null);
@@ -38,29 +49,44 @@ export function PurchasesTable() {
           params.append('level', 'country');
         }
 
-        const response = await fetch(`/api/purchases?${params.toString()}`);
+        // Fetch both purchases data and filter options in parallel
+        const [purchasesResponse, filtersResponse] = await Promise.all([
+          fetch(`/api/purchases?${params.toString()}`),
+          fetch(`/api/purchases/filters?${params.toString()}`),
+        ]);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch purchases data');
+        if (!purchasesResponse.ok || !filtersResponse.ok) {
+          throw new Error('Failed to fetch data');
         }
 
-        const result = await response.json() as {
-          success: boolean;
-          data?: Purchase[];
-          error?: string;
-        };
+        const [purchasesResult, filtersResult] = await Promise.all([
+          purchasesResponse.json() as Promise<{
+            success: boolean;
+            data?: Purchase[];
+            error?: string;
+          }>,
+          filtersResponse.json() as Promise<{
+            success: boolean;
+            data?: FilterOptions;
+            error?: string;
+          }>,
+        ]);
 
         if (!cancelled) {
-          if (result.success && result.data) {
-            setData(result.data);
+          if (purchasesResult.success && purchasesResult.data) {
+            setData(purchasesResult.data);
           } else {
-            setError(result.error || 'Failed to load purchases data');
+            setError(purchasesResult.error || 'Failed to load purchases data');
+          }
+
+          if (filtersResult.success && filtersResult.data) {
+            setFilterOptions(filtersResult.data);
           }
         }
       } catch (err) {
         if (!cancelled) {
-          console.error('Error fetching purchases:', err);
-          setError('Unable to load purchases data. Please refresh and try again.');
+          console.error('Error fetching data:', err);
+          setError('Unable to load data. Please refresh and try again.');
         }
       } finally {
         if (!cancelled) {
@@ -69,7 +95,7 @@ export function PurchasesTable() {
       }
     }
 
-    fetchPurchases();
+    fetchData();
 
     return () => {
       cancelled = true;
@@ -107,7 +133,7 @@ export function PurchasesTable() {
   return (
     <div className="container mx-auto py-10">
       <h2 className="text-2xl font-bold mb-4">{getTitle()}</h2>
-      <DataTable columns={columns} data={data} />
+      <DataTable columns={columns} data={data} filterOptions={filterOptions} />
     </div>
   );
 }

@@ -143,7 +143,7 @@ export function normalizeRegionName(regionName: string): string {
   if (!regionName) return '';
   
   // Remove "Región" prefix and replace with "Region"
-  let normalized = regionName.replace(/^Región\s+/i, 'Region ');
+  const normalized = regionName.replace(/^Región\s+/i, 'Region ');
   
   // Handle specific name variations between GeoJSON and data_regions.json
   const regionMappings: Record<string, string> = {
