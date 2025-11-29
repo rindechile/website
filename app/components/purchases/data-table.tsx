@@ -169,6 +169,11 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => {
+                    const chilecompraId = (row.original as { chilecompra_code: string }).chilecompra_code;
+                    window.open(`https://buscador.mercadopublico.cl/ordenes-de-compra?keywords=${chilecompraId}`, '_blank');
+                  }}
+                  className="cursor-pointer hover:bg-muted/50"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
