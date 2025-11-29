@@ -15,6 +15,8 @@ interface TreemapChartProps {
 interface BreadcrumbItem {
   name: string;
   categoryId?: number;
+  segmentId?: number;
+  familyId?: number;
 }
 
 // Extended type for D3 treemap nodes with layout properties
@@ -66,24 +68,58 @@ export function TreemapChart({ data: initialData, level, code }: TreemapChartPro
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // Handle drilling down into a category
+  // Handle drilling down into a node
   const handleDrillDown = useCallback(async (node: TreemapNode) => {
-    // Only allow drill-down on categories
-    if (node.type !== 'category') return;
-
     setLoading(true);
     try {
-      const segmentData = await getTreemapData(level, code, node.id);
-      if (segmentData) {
-        setData(segmentData);
-        setBreadcrumbs(prev => [...prev, { name: node.name, categoryId: node.id }]);
+      let newData: TreemapHierarchy | null = null;
+
+      if (node.type === 'category') {
+        // Drill down to segments
+        newData = await getTreemapData(level, code, node.id);
+        if (newData) {
+          setBreadcrumbs(prev => [...prev, { name: node.name, categoryId: node.id }]);
+        }
+      } else if (node.type === 'segment') {
+        // Drill down to families
+        const currentBreadcrumb = breadcrumbs[breadcrumbs.length - 1];
+        newData = await getTreemapData(level, code, currentBreadcrumb.categoryId, node.id);
+        if (newData) {
+          setBreadcrumbs(prev => [...prev, {
+            name: node.name,
+            categoryId: currentBreadcrumb.categoryId,
+            segmentId: node.id
+          }]);
+        }
+      } else if (node.type === 'family') {
+        // Drill down to classes
+        const currentBreadcrumb = breadcrumbs[breadcrumbs.length - 1];
+        newData = await getTreemapData(
+          level,
+          code,
+          currentBreadcrumb.categoryId,
+          currentBreadcrumb.segmentId,
+          node.id
+        );
+        if (newData) {
+          setBreadcrumbs(prev => [...prev, {
+            name: node.name,
+            categoryId: currentBreadcrumb.categoryId,
+            segmentId: currentBreadcrumb.segmentId,
+            familyId: node.id
+          }]);
+        }
+      }
+
+      if (newData) {
+        setData(newData);
       }
     } catch (error) {
       console.error('Failed to drill down:', error);
     } finally {
       setLoading(false);
     }
-  }, [level, code]);
+  }, [level, code, breadcrumbs]);
 
   // Handle breadcrumb navigation
   const handleBreadcrumbClick = useCallback(async (index: number) => {
@@ -91,30 +127,39 @@ export function TreemapChart({ data: initialData, level, code }: TreemapChartPro
 
     setLoading(true);
     try {
+      const breadcrumb = breadcrumbs[index];
+      let newData: TreemapHierarchy | null = null;
+
       if (index === 0) {
         // Go back to categories view
-        const categoryData = await getTreemapData(level, code);
-        if (categoryData) {
-          setData(categoryData);
-          setBreadcrumbs([{ name: initialData.name }]);
-        }
-      } else {
-        // Go to a specific category's segments
-        const breadcrumb = breadcrumbs[index];
-        if (breadcrumb.categoryId) {
-          const segmentData = await getTreemapData(level, code, breadcrumb.categoryId);
-          if (segmentData) {
-            setData(segmentData);
-            setBreadcrumbs(breadcrumbs.slice(0, index + 1));
-          }
-        }
+        newData = await getTreemapData(level, code);
+      } else if (breadcrumb.familyId !== undefined) {
+        // Go to classes view
+        newData = await getTreemapData(
+          level,
+          code,
+          breadcrumb.categoryId,
+          breadcrumb.segmentId,
+          breadcrumb.familyId
+        );
+      } else if (breadcrumb.segmentId !== undefined) {
+        // Go to families view
+        newData = await getTreemapData(level, code, breadcrumb.categoryId, breadcrumb.segmentId);
+      } else if (breadcrumb.categoryId !== undefined) {
+        // Go to segments view
+        newData = await getTreemapData(level, code, breadcrumb.categoryId);
+      }
+
+      if (newData) {
+        setData(newData);
+        setBreadcrumbs(breadcrumbs.slice(0, index + 1));
       }
     } catch (error) {
       console.error('Failed to navigate:', error);
     } finally {
       setLoading(false);
     }
-  }, [breadcrumbs, level, code, initialData.name]);
+  }, [breadcrumbs, level, code]);
 
   // Render treemap visualization
   useEffect(() => {
@@ -172,8 +217,9 @@ export function TreemapChart({ data: initialData, level, code }: TreemapChartPro
       .join('g')
       .attr('transform', d => `translate(${d.x0},${d.y0})`);
 
-    // Determine if cells are clickable (only categories are clickable)
-    const isClickable = (d: TreemapLayoutNode) => d.data.type === 'category';
+    // Determine if cells are clickable (categories, segments, and families are clickable)
+    const isClickable = (d: TreemapLayoutNode) =>
+      d.data.type === 'category' || d.data.type === 'segment' || d.data.type === 'family';
 
     // Add rectangles
     cells
@@ -227,10 +273,22 @@ export function TreemapChart({ data: initialData, level, code }: TreemapChartPro
       });
   }, [data, dimensions, handleDrillDown]);
 
+  // Get helper text based on current level
+  const getHelperText = () => {
+    if (breadcrumbs.length === 1) {
+      return 'Click a category to view segments';
+    } else if (breadcrumbs.length === 2) {
+      return 'Click a segment to view families';
+    } else if (breadcrumbs.length === 3) {
+      return 'Click a family to view classes';
+    }
+    return null;
+  };
+
   return (
     <div className="relative">
       {/* Breadcrumb Navigation */}
-      <div className="mb-4 flex items-center gap-2 text-sm">
+      <div className="mb-4 flex items-center gap-2 text-sm flex-wrap">
         {breadcrumbs.map((breadcrumb, index) => (
           <div key={index} className="flex items-center gap-2">
             {index > 0 && (
@@ -293,14 +351,14 @@ export function TreemapChart({ data: initialData, level, code }: TreemapChartPro
       </div>
 
       {/* Legend */}
-      <div className="mt-4 flex items-center justify-center gap-4 text-xs">
+      <div className="mt-4 flex items-center justify-center gap-4 text-xs flex-wrap">
         <span className="text-muted-foreground">Purchase Amount:</span>
         <div className="flex items-center gap-2">
           <div className="h-4 w-8 rounded" style={{ background: 'linear-gradient(to right, oklch(0.652 0.236 332.23), oklch(0.652 0.236 138.18))' }} />
           <span>Low → High</span>
         </div>
-        {breadcrumbs.length === 1 && (
-          <span className="text-muted-foreground ml-4">Click a category to view segments</span>
+        {getHelperText() && (
+          <span className="text-muted-foreground ml-4">{getHelperText()}</span>
         )}
       </div>
     </div>

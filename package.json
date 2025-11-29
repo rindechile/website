@@ -19,7 +19,6 @@
     "db:drop:all:remote": "wrangler d1 execute transparenta --remote --file=scripts/sql/drop-all-tables.sql",
     "db:reset": "pnpm run db:drop:all && pnpm run drizzle:migrate",
     "db:reset:remote": "pnpm run db:drop:all:remote && pnpm run drizzle:migrate",
-
     "db:seed:unspsc": "tsx scripts/seed-unspsc.ts",
     "db:seed:unspsc:remote": "tsx scripts/seed-unspsc.ts --remote",
     "db:seed:items": "tsx scripts/seed-items.ts",
@@ -44,6 +43,7 @@
     "@radix-ui/react-navigation-menu": "^1.2.14",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
