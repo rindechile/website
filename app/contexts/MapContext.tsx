@@ -50,22 +50,23 @@ interface MapContextValue {
   regionsData: EnrichedRegionData[];
   municipalitiesData: EnrichedMunicipalityData[];
   nationalAverage: number | undefined;
-  
+
   // View state
   viewState: MapViewState;
   detailPanelData: DetailPanelData;
-  
+
   // Loading states
   loading: boolean;
   loadingMunicipalities: boolean;
   error: string | null;
-  
+
   // Handlers
   handleRegionClick: (regionCode: string) => void;
   handleMunicipalityClick: (municipalityCode: string) => void;
+  handleMunicipalitySelectById: (municipalityId: number, regionCode: number) => void;
   handleBackToCountry: () => void;
   handleRetry: () => void;
-  
+
   // Accessibility
   ariaLiveMessage: string;
 }
@@ -95,6 +96,7 @@ export function MapProvider({
     selectedMunicipalityData,
     handleRegionClick,
     handleMunicipalityClick,
+    handleMunicipalitySelectById,
     handleBackToCountry,
   } = useMapNavigation({
     regionsData,
@@ -214,6 +216,7 @@ export function MapProvider({
     error,
     handleRegionClick,
     handleMunicipalityClick,
+    handleMunicipalitySelectById,
     handleBackToCountry,
     handleRetry,
     ariaLiveMessage,

@@ -42,6 +42,8 @@ export function useMapNavigation({
   const [selectedMunicipalityData, setSelectedMunicipalityData] =
     useState<SelectedMunicipalityData | null>(null);
 
+  const [pendingMunicipalityId, setPendingMunicipalityId] = useState<number | null>(null);
+
   // Initialize view from URL or initialRegionCode
   useEffect(() => {
     if (regionsData.length === 0) return;
@@ -142,11 +144,84 @@ export function useMapNavigation({
     onAnnounce('Mostrando vista de Chile completo');
   };
 
+  const handleMunicipalitySelectById = (municipalityId: number, regionCode: number) => {
+    // First, ensure we're viewing the correct region
+    const region = regionsData.find(
+      (r) => r.feature.properties.codregion === regionCode
+    );
+
+    if (region) {
+      setViewState({
+        level: 'region',
+        selectedRegion: region.feature,
+        selectedMunicipality: null,
+      });
+
+      // Update URL with slug
+      const slug = getSlugFromCode(regionCode);
+      if (slug) {
+        router.push(`/${slug}`, { scroll: false });
+      }
+
+      // Store pending municipality ID to select after municipalities load
+      setPendingMunicipalityId(municipalityId);
+
+      // Announce to screen readers
+      onAnnounce(`Mostrando región ${region.feature.properties.Region}`);
+    }
+  };
+
+  // Auto-select municipality after region change if we have a pending selection
+  useEffect(() => {
+    if (municipalitiesData.length > 0 && viewState.level === 'region') {
+      // Check for pending municipality ID (from search or programmatic selection)
+      let municipalityIdToSelect = pendingMunicipalityId;
+
+      // Check sessionStorage for municipality ID from search dialog
+      if (!municipalityIdToSelect && typeof window !== 'undefined') {
+        const storedId = sessionStorage.getItem('selectedMunicipalityId');
+        if (storedId) {
+          municipalityIdToSelect = parseInt(storedId, 10);
+          sessionStorage.removeItem('selectedMunicipalityId');
+        }
+      }
+
+      if (municipalityIdToSelect) {
+        const municipality = municipalitiesData.find(
+          (m) => m.feature.properties.cod_comuna === municipalityIdToSelect
+        );
+
+        if (municipality) {
+          // Update viewState with selected municipality
+          setViewState((prev) => ({
+            ...prev,
+            selectedMunicipality: municipality.feature,
+          }));
+
+          // Update municipality data for the panel
+          setSelectedMunicipalityData({
+            name: municipality.feature.properties.Comuna,
+            regionName: viewState.selectedRegion?.properties.Region || '',
+            municipalityId: municipality.feature.properties.cod_comuna,
+            data: municipality.data,
+          });
+
+          // Announce to screen readers
+          onAnnounce(`Mostrando detalles de ${municipality.feature.properties.Comuna}`);
+
+          // Clear pending selection
+          setPendingMunicipalityId(null);
+        }
+      }
+    }
+  }, [municipalitiesData, pendingMunicipalityId, viewState.level, viewState.selectedRegion, onAnnounce]);
+
   return {
     viewState,
     selectedMunicipalityData,
     handleRegionClick,
     handleMunicipalityClick,
+    handleMunicipalitySelectById,
     handleBackToCountry,
   };
 }
