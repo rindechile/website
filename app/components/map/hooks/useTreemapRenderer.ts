@@ -123,23 +123,87 @@ export function useTreemapRenderer({
         }
       });
 
-    // Add text labels
-    cells
-      .append('text')
-      .attr('x', 4)
-      .attr('y', 16)
-      .attr('fill', 'currentColor')
-      .attr('font-size', '11px')
-      .attr('font-weight', '500')
-      .attr('pointer-events', 'none')
-      .text(d => {
-        const width = d.x1 - d.x0;
-        const name = d.data.name;
-        // Only show text if there's enough space
-        if (width < 60) return '';
-        // Truncate long names
-        return name.length > 20 ? name.substring(0, 17) + '...' : name;
+    // Add text labels with wrapping
+    cells.each(function(d) {
+      const width = d.x1 - d.x0;
+      const height = d.y1 - d.y0;
+      const name = d.data.name;
+
+      // Only show text if there's enough space
+      if (width < 80 || height < 60) return;
+
+      const padding = 8;
+      const lineHeight = 14;
+      const fontSize = 11;
+      const maxWidth = width - padding * 2;
+
+      // Create text element
+      const textElement = d3.select(this).append('text')
+        .attr('fill', 'currentColor')
+        .attr('font-size', `${fontSize}px`)
+        .attr('font-weight', '500')
+        .attr('pointer-events', 'none');
+
+      // Helper function to wrap text
+      const words = name.split(/\s+/);
+      const lines: string[] = [];
+      let currentLine = '';
+
+      // Create temporary text to measure width
+      const tempText = textElement.append('tspan').text('');
+
+      words.forEach((word, i) => {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+        tempText.text(testLine);
+        const testWidth = (tempText.node() as SVGTSpanElement).getComputedTextLength();
+
+        if (testWidth > maxWidth && currentLine !== '') {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+
+        // Add last line
+        if (i === words.length - 1) {
+          lines.push(currentLine);
+        }
       });
+
+      // Remove temporary text
+      tempText.remove();
+
+      // Calculate max lines that fit
+      const maxLines = Math.floor((height - padding) / lineHeight);
+      const displayLines = lines.slice(0, maxLines);
+
+      // If text is truncated, add ellipsis to last line
+      if (lines.length > maxLines && displayLines.length > 0) {
+        const lastLineIndex = displayLines.length - 1;
+        let lastLine = displayLines[lastLineIndex];
+
+        // Try to fit ellipsis
+        const testSpan = textElement.append('tspan').text(lastLine + '...');
+        while ((testSpan.node() as SVGTSpanElement).getComputedTextLength() > maxWidth && lastLine.length > 0) {
+          lastLine = lastLine.slice(0, -1);
+          testSpan.text(lastLine + '...');
+        }
+        testSpan.remove();
+
+        displayLines[lastLineIndex] = lastLine + '...';
+      }
+
+      // Position text at top-left corner
+      const yOffset = padding + fontSize;
+
+      // Add tspan elements for each line
+      displayLines.forEach((line, i) => {
+        textElement.append('tspan')
+          .attr('x', padding)
+          .attr('y', yOffset + i * lineHeight)
+          .text(line);
+      });
+    });
 
     // Cleanup on unmount
     return () => {
