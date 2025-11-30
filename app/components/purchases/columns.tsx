@@ -13,8 +13,7 @@ export type Purchase = {
   unit_total_price: number | null;
   total_price: number | null;
   price_excess_percentage: number | null;
-  expected_min_range: number | null;
-  expected_max_range: number | null;
+  max_acceptable_price: number | null;
 };
 
 export const columns: ColumnDef<Purchase>[] = [
@@ -160,14 +159,11 @@ export const columns: ColumnDef<Purchase>[] = [
     },
     cell: ({ row }) => {
       const percentage = row.getValue("price_excess_percentage") as number | null;
-      const expectedMinRange = row.original.expected_min_range;
-      const expectedMaxRange = row.original.expected_max_range;
-
+      const maxAcceptablePrice = row.original.max_acceptable_price as number | null;
       return (
         <ExcessBadge
           percentage={percentage}
-          expectedMinRange={expectedMinRange}
-          expectedMaxRange={expectedMaxRange}
+          maxAcceptablePrice={maxAcceptablePrice}
         />
       );
     },

@@ -1,4 +1,4 @@
-import { text, integer, real, sqliteTable, primaryKey } from "drizzle-orm/sqlite-core";
+import { text, integer, real, sqliteTable, index } from "drizzle-orm/sqlite-core";
 
 // 
 // UNSPSC Tables
@@ -15,7 +15,9 @@ export const segments = sqliteTable("segments", {
     .notNull()
     .references(() => categories.id),
   name: text("name").notNull(),
-});
+}, (table) => [
+  index("idx_segments_category").on(table.category_id),
+]);
 
 export const families = sqliteTable("families", {
   id: integer("id").primaryKey(),
@@ -23,7 +25,9 @@ export const families = sqliteTable("families", {
     .notNull()
     .references(() => segments.id),
   name: text("name").notNull(),
-});
+}, (table) => [
+  index("idx_families_segment").on(table.segment_id),
+]);
 
 export const classes = sqliteTable("classes", {
   id: integer("id").primaryKey(),
@@ -31,7 +35,9 @@ export const classes = sqliteTable("classes", {
     .notNull()
     .references(() => families.id),
   name: text("name").notNull(),
-});
+}, (table) => [
+  index("idx_classes_family").on(table.family_id),
+]);
 
 export const commodities = sqliteTable("commodities", {
   id: integer("id").primaryKey(),
@@ -39,7 +45,9 @@ export const commodities = sqliteTable("commodities", {
     .notNull()
     .references(() => classes.id),
   name: text("name").notNull(),
-});
+}, (table) => [
+  index("idx_commodities_class").on(table.class_id),
+]);
 
 // 
 // Regions & Municipalities Tables
@@ -58,7 +66,9 @@ export const municipalities = sqliteTable("municipalities", {
   name: text("name").notNull(),
   budget: real("budget"),
   budget_per_capita: real("budget_per_capita"),
-});
+}, (table) => [
+  index("idx_municipalities_region").on(table.region_id),
+]);
 
 // 
 // Item Table
@@ -73,7 +83,9 @@ export const items = sqliteTable("items", {
   max_acceptable_price: real("max_acceptable_price"),
   name: text("name").notNull(),
   has_sufficient_data: integer("has_sufficient_data").notNull(), // boolean as 0/1
-});
+}, (table) => [
+  index("idx_items_commodity").on(table.commodity_id),
+]);
 
 // 
 // Supplier Table
@@ -102,8 +114,14 @@ export const purchases = sqliteTable("purchases", {
     .references(() => suppliers.rut),
   quantity: integer("quantity").notNull(),
   unit_total_price: real("unit_total_price"),
-  is_expensive: integer("is_expensive"), 
+  is_expensive: integer("is_expensive"),
   price_excess_amount: real("price_excess_amount"),
   price_excess_percentage: real("price_excess_percentage"),
   chilecompra_code: text("chilecompra_code").notNull(),
-});
+}, (table) => [
+  // Composite index for most common query pattern (municipality + item lookups)
+  index("idx_purchases_municipality_item").on(table.municipality_id, table.item_id),
+  // Individual indexes for other common queries
+  index("idx_purchases_item").on(table.item_id),
+  index("idx_purchases_supplier").on(table.supplier_rut),
+]);

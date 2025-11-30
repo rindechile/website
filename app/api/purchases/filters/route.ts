@@ -30,23 +30,25 @@ export async function GET(request: NextRequest) {
 
     const db = drizzle(env.DB);
 
-    // Build base query for items
+    // Build base query for items using GROUP BY instead of DISTINCT for better performance
     let itemsQuery = db
-      .selectDistinct({
+      .select({
         name: items.name,
       })
       .from(purchases)
       .innerJoin(items, eq(purchases.item_id, items.id))
       .innerJoin(municipalities, eq(purchases.municipality_id, municipalities.id))
+      .groupBy(items.name)
       .$dynamic();
 
     // Build base query for municipalities
     let municipalitiesQuery = db
-      .selectDistinct({
+      .select({
         name: municipalities.name,
       })
       .from(purchases)
       .innerJoin(municipalities, eq(purchases.municipality_id, municipalities.id))
+      .groupBy(municipalities.name)
       .$dynamic();
 
     // Apply filters based on level
@@ -60,10 +62,10 @@ export async function GET(request: NextRequest) {
       municipalitiesQuery = municipalitiesQuery.where(eq(municipalities.region_id, regionIdInt));
     }
 
-    // Execute all queries in parallel
+    // Execute all queries in parallel with reasonable limits for UI dropdowns
     const [itemsResults, municipalitiesResults] = await Promise.all([
-      itemsQuery.orderBy(items.name).all(),
-      municipalitiesQuery.orderBy(municipalities.name).all(),
+      itemsQuery.orderBy(items.name).limit(1000).all(),
+      municipalitiesQuery.orderBy(municipalities.name).limit(500).all(),
     ]);
 
     return NextResponse.json({

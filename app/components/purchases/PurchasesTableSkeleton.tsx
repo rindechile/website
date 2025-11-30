@@ -13,7 +13,7 @@ export function PurchasesTableSkeleton() {
   const skeletonRows = Array.from({ length: 10 }, (_, i) => i);
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="">
       {/* Title Skeleton */}
       <Skeleton className="h-8 w-64 mb-4" />
 

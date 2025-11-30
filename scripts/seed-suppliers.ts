@@ -32,7 +32,7 @@ function extractSupplierData(csvPath: string): Supplier[] {
   const suppliersMap = new Map<string, Supplier>();
 
   for (const parts of rows) {
-    const rut = parts[0];
+    const rut = parts[0].toUpperCase(); // Normalize to uppercase for consistency
 
     // Skip if already exists
     if (suppliersMap.has(rut)) {

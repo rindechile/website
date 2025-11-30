@@ -38,7 +38,7 @@ export function Header() {
                         <h1 className="text-base tablet:text-xl font-semibold whitespace-nowrap">Rinde Chile</h1>
                     </Link>
                 <div className="flex flex-row gap-4 items-center">
-                    <Button
+                    {/* <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setSearchOpen(true)}
@@ -49,7 +49,7 @@ export function Header() {
                         <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
                             <span className="text-xs">⌘</span>K
                         </kbd>
-                    </Button>
+                    </Button> */}
 
                     <Button
                         variant="outline"

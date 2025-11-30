@@ -2,13 +2,12 @@
 
 type ExcessBadgeProps = {
   percentage: number | null;
-  expectedMinRange: number | null;
-  expectedMaxRange: number | null;
+  maxAcceptablePrice: number | null;
 };
 
-export function ExcessBadge({ percentage, expectedMinRange, expectedMaxRange }: ExcessBadgeProps) {
+export function ExcessBadge({ percentage, maxAcceptablePrice }: ExcessBadgeProps) {
   // If no percentage or no price range data, show N/A
-  if (percentage === null || expectedMinRange === null || expectedMaxRange === null) {
+  if (percentage === null || maxAcceptablePrice === null) {
     return <div className="font-light text-muted-foreground">N/A</div>;
   }
 
@@ -38,7 +37,7 @@ export function ExcessBadge({ percentage, expectedMinRange, expectedMaxRange }: 
     }).format(price);
   };
 
-  const priceRange = `${formatPrice(expectedMinRange)} - ${formatPrice(expectedMaxRange)}`;
+  const priceRange = `${formatPrice(maxAcceptablePrice)}`;
 
   return (
     <div className="flex flex-col gap-1">
@@ -46,7 +45,7 @@ export function ExcessBadge({ percentage, expectedMinRange, expectedMaxRange }: 
         +{percentage.toFixed(1)}%
       </div>
       <div className="text-xs text-muted-foreground whitespace-nowrap">
-        Rango Esperado: {priceRange}
+        Precio Máximo Aceptable: {priceRange}
       </div>
     </div>
   );

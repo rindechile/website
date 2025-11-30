@@ -8,6 +8,13 @@
       "when": 1764340655747,
       "tag": "0000_premium_ender_wiggin",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1764514589840,
+      "tag": "0001_reflective_blindfold",
+      "breakpoints": true
     }
   ]
 }

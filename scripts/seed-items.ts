@@ -37,23 +37,32 @@ function extractItemData(csvPath: string): Item[] {
 
   for (const parts of rows) {
     const id = parts[4];
-
-    // Skip if already exists
-    if (itemsMap.has(id)) {
-      continue;
-    }
-
+    const name = parts[5];
     const hasData = (parts[6] || '').toString().trim().toLowerCase() === 'true' ? 1 : 0;
 
-    itemsMap.set(id, {
+    const newItem: Item = {
       expected_min_range: parseInt(parts[0], 10),
       expected_max_range: parseInt(parts[1], 10),
       max_acceptable_price: parseFloat(parts[2]),
       commodity_id: parseInt(parts[3], 10),
       id: parseInt(id, 10),
-      name: parts[5],
+      name,
       has_sufficient_data: hasData,
-    });
+    };
+
+    // If ID already exists, prefer the version without encoding corruption
+    if (itemsMap.has(id)) {
+      const existingItem = itemsMap.get(id)!;
+      const hasCorruption = (str: string) => str.includes('Ï¿½') || str.includes('�');
+
+      // Only replace if new item has better quality (no corruption)
+      if (hasCorruption(existingItem.name) && !hasCorruption(name)) {
+        itemsMap.set(id, newItem);
+      }
+      continue;
+    }
+
+    itemsMap.set(id, newItem);
   }
 
   const items = Array.from(itemsMap.values());
