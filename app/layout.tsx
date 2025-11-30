@@ -13,6 +13,7 @@ const instrumentSans = Instrument_Sans({
 export const metadata: Metadata = {
   title: "Rinde Chile - Transparencia en Compras Municipales",
   description: "Plataforma dedicada a monitorear y promover la transparencia en las compras municipales en Chile.",
+  metadataBase: new URL("https://rindechile.cl"),
   openGraph: {
     type: "website",
     locale: "es_CL",
