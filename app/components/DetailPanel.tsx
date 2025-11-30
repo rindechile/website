@@ -130,7 +130,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
       {/* Summary Card */}
       <div className="rounded-lg p-6 border border-border mb-6">
         <div className="text-center">
-          <p className="text-sm text-muted-foreground mb-2">Overpricing Percentage</p>
+          <p className="text-sm text-muted-foreground mb-2">Porcentaje de Anomalías</p>
           <p className="text-4xl font-bold">
             {formatPercentage(data.data.porcentaje_sobreprecio)}
           </p>
@@ -139,7 +139,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
 
       {/* Treemap Visualization */}
       <div className="rounded-lg border border-border p-6 mb-6">
-        <h3 className="text-sm font-medium mb-4">Purchase Distribution by Category</h3>
+        <h3 className="text-md font-medium mb-4">Distribución de gasto por categoría</h3>
         {loadingTreemap && <TreemapSkeleton />}
         {treemapError && (
           <div className="flex items-center justify-center py-12">

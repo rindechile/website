@@ -7,19 +7,9 @@ import { desc, eq, sql } from 'drizzle-orm';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const pageSize = parseInt(searchParams.get('pageSize') || '100');
     const level = searchParams.get('level'); // 'country' | 'region' | 'municipality'
     const regionId = searchParams.get('regionId'); // region ID (1-16)
     const municipalityId = searchParams.get('municipalityId'); // municipality ID
-
-    // Validate pagination parameters
-    if (page < 1 || pageSize < 1 || pageSize > 1000) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid pagination parameters' },
-        { status: 400 }
-      );
-    }
 
     // Validate level parameter
     if (level && !['country', 'region', 'municipality'].includes(level)) {
@@ -39,9 +29,6 @@ export async function GET(request: NextRequest) {
     }
 
     const db = drizzle(env.DB);
-
-    // Calculate offset
-    const offset = (page - 1) * pageSize;
 
     // Build query with joins to get related data
     let query = db
@@ -69,21 +56,14 @@ export async function GET(request: NextRequest) {
     }
     // For 'country' level or no level specified, no filter is applied
 
-    // Execute query with ordering, limit, and offset
+    // Execute query with ordering
     const results = await query
       .orderBy(desc(purchases.id))
-      .limit(pageSize)
-      .offset(offset)
       .all();
 
     return NextResponse.json({
       success: true,
       data: results,
-      pagination: {
-        page,
-        pageSize,
-        hasMore: results.length === pageSize,
-      },
       filter: {
         level: level || 'country',
         regionId,

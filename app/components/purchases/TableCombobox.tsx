@@ -46,7 +46,7 @@ export function TableCombobox({
           aria-expanded={open}
           className="w-full justify-between rounded-xl"
         >
-          {value || placeholder}
+          <span className="lowercase first-letter:uppercase">{value || placeholder}</span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -82,6 +82,7 @@ export function TableCombobox({
                     onValueChange(currentValue === value ? "" : currentValue);
                     setOpen(false);
                   }}
+                  className="capitalize"
                 >
                   <Check
                     className={cn(
@@ -89,7 +90,7 @@ export function TableCombobox({
                       value === option ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {option}
+                  <span className="lowercase first-letter:uppercase">{option}</span>
                 </CommandItem>
               ))}
             </CommandGroup>

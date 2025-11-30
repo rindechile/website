@@ -150,10 +150,19 @@ async function getRegionTreemapData(db: ReturnType<typeof drizzle>, regionId: st
     .groupBy(categories.id, categories.name)
     .all();
 
-  return buildHierarchy(results, `Region ${regionId}`);
+  return buildHierarchy(results, `Región ${regionId}`);
 }
 
 async function getMunicipalityTreemapData(db: ReturnType<typeof drizzle>, municipalityCode: number): Promise<TreemapHierarchy> {
+  // First, get the municipality name
+  const municipality = await db
+    .select({ name: municipalities.name })
+    .from(municipalities)
+    .where(eq(municipalities.id, municipalityCode))
+    .get();
+
+  const municipalityName = municipality?.name || `${municipalityCode}`;
+
   // Query all purchases for this municipality, grouped by category only
   // municipalityCode is the cod_comuna from GeoJSON, which should match municipality_id in purchases
   const results = await db
@@ -173,7 +182,7 @@ async function getMunicipalityTreemapData(db: ReturnType<typeof drizzle>, munici
     .groupBy(categories.id, categories.name)
     .all();
 
-  return buildHierarchy(results, `Municipality ${municipalityCode}`);
+  return buildHierarchy(results, `Municipalidad de ${municipalityName}`);
 }
 
 // Segment-level queries (drill-down from category)
@@ -198,7 +207,7 @@ async function getCountrySegmentsData(db: ReturnType<typeof drizzle>, categoryId
     .groupBy(segments.id, segments.name, categories.name)
     .all();
 
-  return buildSegmentHierarchy(results, results[0]?.categoryName || `Category ${categoryId}`);
+  return buildSegmentHierarchy(results, results[0]?.categoryName || `Categoría ${categoryId}`);
 }
 
 async function getRegionSegmentsData(db: ReturnType<typeof drizzle>, regionId: string, categoryId: number): Promise<TreemapHierarchy> {
@@ -222,7 +231,7 @@ async function getRegionSegmentsData(db: ReturnType<typeof drizzle>, regionId: s
     .groupBy(segments.id, segments.name, categories.name)
     .all();
 
-  return buildSegmentHierarchy(results, results[0]?.categoryName || `Category ${categoryId}`);
+  return buildSegmentHierarchy(results, results[0]?.categoryName || `Categoría ${categoryId}`);
 }
 
 async function getMunicipalitySegmentsData(db: ReturnType<typeof drizzle>, municipalityCode: number, categoryId: number): Promise<TreemapHierarchy> {
@@ -245,7 +254,7 @@ async function getMunicipalitySegmentsData(db: ReturnType<typeof drizzle>, munic
     .groupBy(segments.id, segments.name, categories.name)
     .all();
 
-  return buildSegmentHierarchy(results, results[0]?.categoryName || `Category ${categoryId}`);
+  return buildSegmentHierarchy(results, results[0]?.categoryName || `Categoría ${categoryId}`);
 }
 
 // Family-level queries (drill-down from segment)
@@ -269,7 +278,7 @@ async function getCountryFamiliesData(db: ReturnType<typeof drizzle>, segmentId:
     .groupBy(families.id, families.name, segments.name)
     .all();
 
-  return buildFamilyHierarchy(results, results[0]?.segmentName || `Segment ${segmentId}`);
+  return buildFamilyHierarchy(results, results[0]?.segmentName || `Segmento ${segmentId}`);
 }
 
 async function getRegionFamiliesData(db: ReturnType<typeof drizzle>, regionId: string, segmentId: number): Promise<TreemapHierarchy> {
@@ -292,7 +301,7 @@ async function getRegionFamiliesData(db: ReturnType<typeof drizzle>, regionId: s
     .groupBy(families.id, families.name, segments.name)
     .all();
 
-  return buildFamilyHierarchy(results, results[0]?.segmentName || `Segment ${segmentId}`);
+  return buildFamilyHierarchy(results, results[0]?.segmentName || `Segmento ${segmentId}`);
 }
 
 async function getMunicipalityFamiliesData(db: ReturnType<typeof drizzle>, municipalityCode: number, segmentId: number): Promise<TreemapHierarchy> {
@@ -314,7 +323,7 @@ async function getMunicipalityFamiliesData(db: ReturnType<typeof drizzle>, munic
     .groupBy(families.id, families.name, segments.name)
     .all();
 
-  return buildFamilyHierarchy(results, results[0]?.segmentName || `Segment ${segmentId}`);
+  return buildFamilyHierarchy(results, results[0]?.segmentName || `Segmento ${segmentId}`);
 }
 
 // Class-level queries (drill-down from family)
@@ -337,7 +346,7 @@ async function getCountryClassesData(db: ReturnType<typeof drizzle>, familyId: n
     .groupBy(classes.id, classes.name, families.name)
     .all();
 
-  return buildClassHierarchy(results, results[0]?.familyName || `Family ${familyId}`);
+  return buildClassHierarchy(results, results[0]?.familyName || `Familia ${familyId}`);
 }
 
 async function getRegionClassesData(db: ReturnType<typeof drizzle>, regionId: string, familyId: number): Promise<TreemapHierarchy> {
@@ -359,7 +368,7 @@ async function getRegionClassesData(db: ReturnType<typeof drizzle>, regionId: st
     .groupBy(classes.id, classes.name, families.name)
     .all();
 
-  return buildClassHierarchy(results, results[0]?.familyName || `Family ${familyId}`);
+  return buildClassHierarchy(results, results[0]?.familyName || `Familia ${familyId}`);
 }
 
 async function getMunicipalityClassesData(db: ReturnType<typeof drizzle>, municipalityCode: number, familyId: number): Promise<TreemapHierarchy> {
@@ -380,7 +389,7 @@ async function getMunicipalityClassesData(db: ReturnType<typeof drizzle>, munici
     .groupBy(classes.id, classes.name, families.name)
     .all();
 
-  return buildClassHierarchy(results, results[0]?.familyName || `Family ${familyId}`);
+  return buildClassHierarchy(results, results[0]?.familyName || `Familia ${familyId}`);
 }
 
 interface QueryResult {

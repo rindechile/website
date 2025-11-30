@@ -30,10 +30,7 @@ export function PurchasesTable() {
         setError(null);
 
         // Build query parameters based on current view
-        const params = new URLSearchParams({
-          page: '1',
-          pageSize: '100',
-        });
+        const params = new URLSearchParams();
 
         if (detailPanelData) {
           params.append('level', detailPanelData.level);

@@ -11,7 +11,7 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Vigil Chile - Transparencia en Compras Municipales",
+  title: "Rinde Chile - Transparencia en Compras Municipales",
   description: "Plataforma dedicada a monitorear y promover la transparencia en las compras municipales en Chile, facilitando el acceso a información pública y fomentando la participación ciudadana.",
 };
 
