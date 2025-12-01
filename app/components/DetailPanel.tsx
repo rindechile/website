@@ -2,6 +2,7 @@
 
 import type { DetailPanelData } from '@/app/contexts/MapContext';
 import { Badge } from '@/app/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app/components/ui/card';
 import { TreemapChart } from '@/app/components/map/TreemapChart';
 import { TreemapSkeleton } from '@/app/components/map/TreemapSkeleton';
 import { getTreemapData } from '@/app/lib/data-service';

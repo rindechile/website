@@ -1,82 +1,98 @@
 {
-    "Region de los Lagos": {
-        "porcentaje_sobreprecio": 11.11,
-        "compras_caras": 7711,
-        "compras_totales": 69410
-    },
-    "Region del Maule": {
-        "porcentaje_sobreprecio": 10.99,
-        "compras_caras": 7386,
-        "compras_totales": 67204
-    },
-    "Region de la Araucania": {
-        "porcentaje_sobreprecio": 10.5,
-        "compras_caras": 7142,
-        "compras_totales": 68048
-    },
-    "Region Aysen del General Carlos IbaNez del Campo": {
-        "porcentaje_sobreprecio": 9.74,
-        "compras_caras": 825,
-        "compras_totales": 8474
-    },
-    "Region del Libertador General Bernardo OHiggins": {
-        "porcentaje_sobreprecio": 8.69,
-        "compras_caras": 4823,
-        "compras_totales": 55515
-    },
-    "Region Metropolitana de Santiago": {
-        "porcentaje_sobreprecio": 8.62,
-        "compras_caras": 8066,
-        "compras_totales": 93560
-    },
-    "Region de Valparaiso": {
-        "porcentaje_sobreprecio": 7.8,
-        "compras_caras": 6249,
-        "compras_totales": 80154
-    },
-    "Region de Coquimbo": {
-        "porcentaje_sobreprecio": 7.69,
-        "compras_caras": 3147,
-        "compras_totales": 40913
-    },
-    "Region del Biobio": {
-        "porcentaje_sobreprecio": 7.53,
-        "compras_caras": 6860,
-        "compras_totales": 91116
-    },
-    "Region de Arica y Parinacota": {
-        "porcentaje_sobreprecio": 7.27,
-        "compras_caras": 458,
-        "compras_totales": 6298
-    },
-    "Region de Los Rios": {
-        "porcentaje_sobreprecio": 5.9,
-        "compras_caras": 2198,
-        "compras_totales": 37249
-    },
-    "Region de Atacama": {
-        "porcentaje_sobreprecio": 5.58,
-        "compras_caras": 1019,
-        "compras_totales": 18272
-    },
-    "Region de Magallanes y de la Antartica": {
-        "porcentaje_sobreprecio": 5.56,
-        "compras_caras": 466,
-        "compras_totales": 8386
-    },
-    "Region de Antofagasta": {
-        "porcentaje_sobreprecio": 5.51,
-        "compras_caras": 914,
-        "compras_totales": 16601
-    },
-    "Region del Nuble": {
-        "porcentaje_sobreprecio": 5.04,
-        "compras_caras": 3154,
-        "compras_totales": 62620
-    },
-    "Region de Tarapaca": {
-        "porcentaje_sobreprecio": 4.4,
-        "compras_caras": 910,
-        "compras_totales": 20687
-    }
+  "Region de los Lagos": {
+    "porcentaje_sobreprecio": 11.11,
+    "compras_caras": 7711,
+    "compras_totales": 69410,
+    "budget": 152886941428
+  },
+  "Region del Maule": {
+    "porcentaje_sobreprecio": 10.99,
+    "compras_caras": 7386,
+    "compras_totales": 67204,
+    "budget": 192588009064
+  },
+  "Region de la Araucania": {
+    "porcentaje_sobreprecio": 10.5,
+    "compras_caras": 7142,
+    "compras_totales": 68048,
+    "budget": 203190397529
+  },
+  "Region Aysen del General Carlos IbaNez del Campo": {
+    "porcentaje_sobreprecio": 9.74,
+    "compras_caras": 825,
+    "compras_totales": 8474,
+    "budget": 21862987131
+  },
+  "Region del Libertador General Bernardo OHiggins": {
+    "porcentaje_sobreprecio": 8.69,
+    "compras_caras": 4823,
+    "compras_totales": 55515,
+    "budget": 161446215686
+  },
+  "Region Metropolitana de Santiago": {
+    "porcentaje_sobreprecio": 8.62,
+    "compras_caras": 8066,
+    "compras_totales": 93560,
+    "budget": 918701054999
+  },
+  "Region de Valparaiso": {
+    "porcentaje_sobreprecio": 7.8,
+    "compras_caras": 6249,
+    "compras_totales": 80154,
+    "budget": 286112384901
+  },
+  "Region de Coquimbo": {
+    "porcentaje_sobreprecio": 7.69,
+    "compras_caras": 3147,
+    "compras_totales": 40913,
+    "budget": 114359583906
+  },
+  "Region del Biobio": {
+    "porcentaje_sobreprecio": 7.53,
+    "compras_caras": 6860,
+    "compras_totales": 91116,
+    "budget": 244618774744
+  },
+  "Region de Arica y Parinacota": {
+    "porcentaje_sobreprecio": 7.27,
+    "compras_caras": 458,
+    "compras_totales": 6298,
+    "budget": 29271000037
+  },
+  "Region de Los Rios": {
+    "porcentaje_sobreprecio": 5.9,
+    "compras_caras": 2198,
+    "compras_totales": 37249,
+    "budget": null
+  },
+  "Region de Atacama": {
+    "porcentaje_sobreprecio": 5.58,
+    "compras_caras": 1019,
+    "compras_totales": 18272,
+    "budget": 57297129790
+  },
+  "Region de Magallanes y de la Antartica": {
+    "porcentaje_sobreprecio": 5.56,
+    "compras_caras": 466,
+    "compras_totales": 8386,
+    "budget": 20818742770
+  },
+  "Region de Antofagasta": {
+    "porcentaje_sobreprecio": 5.51,
+    "compras_caras": 914,
+    "compras_totales": 16601,
+    "budget": 80396555293
+  },
+  "Region del Nuble": {
+    "porcentaje_sobreprecio": 5.04,
+    "compras_caras": 3154,
+    "compras_totales": 62620,
+    "budget": 81672371602
+  },
+  "Region de Tarapaca": {
+    "porcentaje_sobreprecio": 4.4,
+    "compras_caras": 910,
+    "compras_totales": 20687,
+    "budget": 45986856464
+  }
 }

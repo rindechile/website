@@ -3,6 +3,8 @@ export interface MunicipalityData {
   porcentaje_sobreprecio: number;
   compras_caras: number;
   compras_totales: number;
+  budget: number | null;
+  budget_per_capita: number | null;
 }
 
 // Map of municipality names to their data
@@ -13,6 +15,7 @@ export interface RegionData {
   porcentaje_sobreprecio: number;
   compras_caras: number;
   compras_totales: number;
+  budget: number | null;
 }
 
 // Map of region names to their pre-computed data

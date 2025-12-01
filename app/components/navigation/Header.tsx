@@ -35,7 +35,7 @@ export function Header() {
                             height={32}
                             className="fill-foreground"
                         />
-                        <h1 className="text-base tablet:text-xl font-semibold whitespace-nowrap">Rinde Chile</h1>
+                        <h1 className="text-base tablet:text-xl font-semibold whitespace-nowrap">RindeChile</h1>
                     </Link>
                 <div className="flex flex-row gap-4 items-center">
                     {/* <Button

@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "prebuild": "pnpm generate:static-data",
     "start": "next start",
     "lint": "eslint",
     "generate:mapping": "tsx scripts/generate-municipality-mapping.ts",
+    "generate:static-data": "tsx scripts/generate-static-data.ts",
     "preinstall": "npx only-allow pnpm",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",

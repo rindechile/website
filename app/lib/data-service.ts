@@ -375,53 +375,54 @@ export async function getTreemapData(
 }
 
 /**
- * Budget response types
+ * Gets budget data for a specific municipality by name
+ * @param municipalityName - The municipality name as it appears in the data JSON
+ * @returns Budget and per capita budget, or null if not found
  */
-interface BudgetResponse {
-  success: boolean;
-  data?: {
-    budget: number | null;
-    budget_per_capita?: number | null;
+export function getMunicipalityBudgetByName(municipalityName: string): {
+  budget: number | null;
+  budgetPerCapita: number | null;
+} {
+  const data = getMunicipalityData();
+  const municipalityData = data[municipalityName];
+
+  if (!municipalityData) {
+    return { budget: null, budgetPerCapita: null };
+  }
+
+  return {
+    budget: municipalityData.budget,
+    budgetPerCapita: municipalityData.budget_per_capita,
   };
-  error?: string;
 }
 
 /**
- * Fetches budget data for a specific level and code
- * @param level - 'country', 'region', or 'municipality'
- * @param code - Region ID or municipality ID (required for region/municipality)
+ * Gets budget data for a specific region by region code
+ * @param regionCode - The region code (1-16)
+ * @returns Region budget, or null if not found
  */
-export async function getBudgetData(
-  level: 'country' | 'region' | 'municipality',
-  code?: string
-): Promise<{ budget: number | null; budgetPerCapita?: number | null }> {
-  try {
-    const params = new URLSearchParams({ level });
-    if (code) {
-      params.append('code', code);
-    }
+export function getRegionBudgetByCode(regionCode: number): number | null {
+  const regionData = getRegionDataByCode(regionCode);
+  return regionData?.budget ?? null;
+}
 
-    const response = await fetch(`/api/budget?${params.toString()}`);
+/**
+ * Gets the country-level budget (sum of all region budgets)
+ * @returns Total country budget, or null if no data available
+ */
+export function getCountryBudget(): number | null {
+  const data = getRegionData();
+  const regions = Object.values(data);
 
-    if (!response.ok) {
-      console.error(`Failed to fetch budget data: ${response.statusText}`);
-      return { budget: null };
-    }
+  // Filter out null budgets and sum
+  const validBudgets = regions
+    .map(r => r.budget)
+    .filter((b): b is number => b !== null);
 
-    const result: BudgetResponse = await response.json();
-
-    if (!result.success || !result.data) {
-      console.error('Budget API returned unsuccessful response:', result.error);
-      return { budget: null };
-    }
-
-    return {
-      budget: result.data.budget,
-      budgetPerCapita: result.data.budget_per_capita,
-    };
-  } catch (error) {
-    console.error('Error fetching budget data:', error);
-    return { budget: null };
+  if (validBudgets.length === 0) {
+    return null;
   }
+
+  return validBudgets.reduce((sum, budget) => sum + budget, 0);
 }
 

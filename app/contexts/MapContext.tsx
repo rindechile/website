@@ -15,7 +15,8 @@ import {
   enrichMunicipalityData,
   getCountryData,
   getRegionDataByCode,
-  getBudgetData,
+  getCountryBudget,
+  getRegionBudgetByCode,
 } from '@/app/lib/data-service';
 import { useMapNavigation } from '@/app/components/map/hooks/useMapNavigation';
 import { useAriaLive } from '@/app/components/map/hooks/useAriaLive';
@@ -90,10 +91,6 @@ export function MapProvider({
   const [loadingMunicipalities, setLoadingMunicipalities] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nationalAverage, setNationalAverage] = useState<number | undefined>(undefined);
-  const [budgetData, setBudgetData] = useState<{
-    budget: number | null;
-    budgetPerCapita?: number | null;
-  }>({ budget: null });
 
   // Accessibility
   const { message: ariaLiveMessage, announce } = useAriaLive();
@@ -168,41 +165,16 @@ export function MapProvider({
     loadMunicipalities();
   }, [viewState.level, viewState.selectedRegion]);
 
-  // Fetch budget data when view state changes
-  useEffect(() => {
-    async function fetchBudget() {
-      let budgetInfo: { budget: number | null; budgetPerCapita?: number | null };
-
-      // Check for municipality first (since selectedMunicipality can be set while level is still 'region')
-      if (viewState.selectedMunicipality && selectedMunicipalityData) {
-        budgetInfo = await getBudgetData(
-          'municipality',
-          selectedMunicipalityData.municipalityId.toString()
-        );
-      } else if (viewState.level === 'country') {
-        budgetInfo = await getBudgetData('country');
-      } else if (viewState.level === 'region' && viewState.selectedRegion) {
-        const regionCode = viewState.selectedRegion.properties.codregion;
-        budgetInfo = await getBudgetData('region', regionCode.toString());
-      } else {
-        budgetInfo = { budget: null };
-      }
-
-      setBudgetData(budgetInfo);
-    }
-
-    fetchBudget();
-  }, [viewState.level, viewState.selectedRegion, viewState.selectedMunicipality, selectedMunicipalityData]);
-
   // Calculate detail panel data based on view state
   const detailPanelData: DetailPanelData = (() => {
     if (viewState.level === 'country') {
       const countryData = getCountryData();
+      const countryBudget = getCountryBudget();
       return {
         level: 'country',
         name: 'Chile',
         data: countryData,
-        budget: budgetData.budget,
+        budget: countryBudget,
       };
     }
 
@@ -213,25 +185,28 @@ export function MapProvider({
 
       // If municipality is selected, show municipality data
       if (viewState.selectedMunicipality && selectedMunicipalityData?.data) {
+        // Budget data is already in selectedMunicipalityData.data from the enriched JSON
         return {
           level: 'municipality',
           name: selectedMunicipalityData.name,
           regionName: selectedMunicipalityData.regionName,
           municipalityId: selectedMunicipalityData.municipalityId,
           data: selectedMunicipalityData.data,
-          budget: budgetData.budget,
-          budgetPerCapita: budgetData.budgetPerCapita ?? null,
+          budget: selectedMunicipalityData.data.budget,
+          budgetPerCapita: selectedMunicipalityData.data.budget_per_capita,
         };
       }
 
       // Otherwise show region data
       if (regionData) {
+        const regionBudget = getRegionBudgetByCode(regionCode);
+
         return {
           level: 'region',
           name: regionName,
           regionId: regionCode.toString(),
           data: regionData,
-          budget: budgetData.budget,
+          budget: regionBudget,
         };
       }
     }
