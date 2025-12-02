@@ -159,7 +159,8 @@ export function DetailPanel({ data }: DetailPanelProps) {
 
       {/* Treemap Visualization */}
       <div className="rounded-lg border border-border p-6 mb-6">
-        <h3 className="text-md font-medium mb-4">Distribución de gasto por categoría</h3>
+        <h3 className="text-md font-medium mb-4">¿Dónde se concentra el sobregasto?</h3>
+        <p className="text-xs tablet:text-sm font-light pb-4">Los bloques más grandes indican las categorías con mayor volumen de gasto en compras que pagaron significativamente más que el precio histórico normal.</p>
         {loadingTreemap && <TreemapSkeleton />}
         {treemapError && (
           <div className="flex items-center justify-center py-12">

@@ -68,7 +68,7 @@ export function MapContainer() {
         <h2 className="text-2xl font-semibold max-w-[30rem]">
           ¿Dónde están las compras públicas que merecen atención?
         </h2>
-        <p className="text-sm text-secondary-foreground font-medium max-w-[25rem]">Descúbre las anomalías en las compras públicas a nivel nacional, regional y municipal.</p>
+        <p className="text-sm text-secondary-foreground font-medium max-w-[25rem]">Descúbre dónde se concentran las compras que superan significativamente el rango histórico de precio. Explora a nivel nacional, regional y municipal.</p>
       </div>
 
       {/* Main Content: Map */}
