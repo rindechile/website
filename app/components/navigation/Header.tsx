@@ -26,7 +26,7 @@ export function Header() {
 
     return (
         <>
-            <header className="flex flex-row justify-between items-center px-4 py-3">
+            <header className="flex flex-row justify-between items-center px-8 pt-4">
                     <Link href="/" className="flex flex-row gap-2 tablet:gap-3 items-center flex-shrink-0">
                         <Image
                             src="/logo.svg"
