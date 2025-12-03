@@ -127,22 +127,31 @@ export function MunicipalitySearchDialog({
         )}
         {!loading && searchResults.length > 0 && (
           <CommandGroup heading={`${searchResults.length > 50 ? '50 primeras de ' : ''}${searchResults.length} comuna${searchResults.length !== 1 ? 's' : ''}`}>
-            {searchResults.slice(0, 50).map((municipality) => (
-              <CommandItem
-                key={municipality.id}
-                value={`${municipality.name}-${municipality.id}`}
-                onSelect={() => handleSelect(municipality)}
-                className="cursor-pointer"
-              >
-                <SearchIcon className="mr-2 size-4 shrink-0" />
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className="font-medium truncate">{municipality.name}</span>
-                  <span className="text-xs text-muted-foreground truncate">
-                    {municipality.region_name}
-                  </span>
-                </div>
-              </CommandItem>
-            ))}
+            {searchResults.slice(0, 50).map((municipality, index) => {
+              // Apply stagger animation to first 10 items only
+              const staggerClass = index < 10 && index < 5
+                ? `animate-fade-in animate-stagger-${index + 1}`
+                : index < 10
+                ? 'animate-fade-in animate-stagger-5'
+                : 'animate-fade-in';
+
+              return (
+                <CommandItem
+                  key={municipality.id}
+                  value={`${municipality.name}-${municipality.id}`}
+                  onSelect={() => handleSelect(municipality)}
+                  className={`cursor-pointer ${staggerClass}`}
+                >
+                  <SearchIcon className="mr-2 size-4 shrink-0" />
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span className="font-medium truncate">{municipality.name}</span>
+                    <span className="text-xs text-muted-foreground truncate">
+                      {municipality.region_name}
+                    </span>
+                  </div>
+                </CommandItem>
+              );
+            })}
           </CommandGroup>
         )}
       </CommandList>

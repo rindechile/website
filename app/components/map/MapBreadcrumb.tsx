@@ -29,7 +29,7 @@ export function MapBreadcrumb({
           ) : (
             <BreadcrumbLink
               onClick={onNavigateToCountry}
-              className="cursor-pointer text-white/80 hover:text-white"
+              className="cursor-pointer text-white/80 hover:text-white transition-all duration-150 hover:scale-105"
             >
               Chile
             </BreadcrumbLink>
@@ -46,7 +46,7 @@ export function MapBreadcrumb({
               ) : (
                 <BreadcrumbLink
                   onClick={onNavigateToRegion}
-                  className="cursor-pointer text-white/80 hover:text-white"
+                  className="cursor-pointer text-white/80 hover:text-white transition-all duration-150 hover:scale-105"
                 >
                   {viewState.selectedRegion.properties.Region}
                 </BreadcrumbLink>

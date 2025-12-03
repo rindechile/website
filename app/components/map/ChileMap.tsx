@@ -156,7 +156,7 @@ export function ChileMap({
                 fill={getFill(region.averageOverpricing)}
                 stroke={colorStroke}
                 strokeWidth={0.6}
-                className="cursor-pointer transition-opacity hover:opacity-80"
+                className="cursor-pointer transition-all duration-200 hover:opacity-80 hover:stroke-[1.2px]"
                 onClick={() => handleRegionClick(region.feature.properties.codregion.toString())}
               />
             ))}
@@ -170,7 +170,7 @@ export function ChileMap({
                 fill={getFill(municipality.data?.porcentaje_sobreprecio)}
                 stroke={colorStroke}
                 strokeWidth={0.9}
-                className="cursor-pointer transition-opacity hover:opacity-80"
+                className="cursor-pointer transition-all duration-200 hover:opacity-80 hover:stroke-[1.4px]"
                 onClick={() => handleMunicipalityClick(municipality.feature.properties.cod_comuna.toString())}
               />
             ))}

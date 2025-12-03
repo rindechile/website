@@ -90,36 +90,49 @@ export function useTreemapRenderer({
     const isClickable = (d: TreemapLayoutNode) =>
       d.data.type === 'category' || d.data.type === 'segment' || d.data.type === 'family';
 
-    // Add rectangles
+    // Add rectangles with initial state for animation
     cells
       .append('rect')
-      .attr('width', d => d.x1 - d.x0)
-      .attr('height', d => d.y1 - d.y0)
+      .attr('width', 0)
+      .attr('height', 0)
       .attr('fill', d => colorScale(d.data.value))
       .attr('stroke', '#fff')
       .attr('stroke-width', 1)
       .attr('cursor', d => isClickable(d) ? 'pointer' : 'default')
-      .style('transition', 'opacity 0.2s')
+      .style('transition', 'opacity 0.2s, filter 0.2s')
+      .transition()
+      .duration(400)
+      .ease(d3.easeQuadOut)
+      .attr('width', d => d.x1 - d.x0)
+      .attr('height', d => d.y1 - d.y0);
+
+    // Add event handlers after animation completes
+    cells
+      .selectAll('rect')
       .on('mouseenter', (event, d) => {
-        if (isClickable(d)) {
-          d3.select(event.currentTarget).style('opacity', 0.8);
+        if (isClickable(d as TreemapLayoutNode)) {
+          d3.select(event.currentTarget)
+            .style('opacity', 0.85)
+            .style('filter', 'brightness(1.1)');
         }
         const rect = event.currentTarget.getBoundingClientRect();
         onNodeHover({
-          name: d.data.name,
-          value: d.data.value,
-          overpricingRate: d.data.overpricingRate,
+          name: (d as TreemapLayoutNode).data.name,
+          value: (d as TreemapLayoutNode).data.value,
+          overpricingRate: (d as TreemapLayoutNode).data.overpricingRate,
           x: rect.left + rect.width / 2,
           y: rect.top - 10,
         });
       })
       .on('mouseleave', (event) => {
-        d3.select(event.currentTarget).style('opacity', 1);
+        d3.select(event.currentTarget)
+          .style('opacity', 1)
+          .style('filter', 'brightness(1)');
         onNodeHover(null);
       })
       .on('click', (event, d) => {
-        if (isClickable(d)) {
-          onNodeClick(d.data);
+        if (isClickable(d as TreemapLayoutNode)) {
+          onNodeClick((d as TreemapLayoutNode).data);
         }
       });
 
@@ -142,7 +155,8 @@ export function useTreemapRenderer({
         .attr('fill', 'currentColor')
         .attr('font-size', `${fontSize}px`)
         .attr('font-weight', '500')
-        .attr('pointer-events', 'none');
+        .attr('pointer-events', 'none')
+        .style('opacity', 0);
 
       // Helper function to wrap text
       const words = name.split(/\s+/);
@@ -203,6 +217,13 @@ export function useTreemapRenderer({
           .attr('y', yOffset + i * lineHeight)
           .text(line);
       });
+
+      // Animate text fade-in
+      textElement
+        .transition()
+        .duration(400)
+        .delay(200)
+        .style('opacity', 1);
     });
 
     // Cleanup on unmount

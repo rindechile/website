@@ -105,10 +105,17 @@ export function DetailPanel({ data }: DetailPanelProps) {
     return data.regionName; // municipality shows region name
   };
 
+  // Create a unique key based on the current selection to trigger animations on change
+  const contentKey = data.level === 'country'
+    ? 'country'
+    : data.level === 'region'
+    ? `region-${data.regionId}`
+    : `municipality-${data.municipalityId}`;
+
   return (
     <div className="h-full overflow-y-auto rounded-xl bg-card p-8 border border-border">
       {/* Header */}
-      <div className="mb-6">
+      <div key={`header-${contentKey}`} className="mb-6 animate-fade-in">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1">
             <h2 className="text-xl font-semibold">{getTitle()}</h2>
@@ -121,7 +128,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
       </div>
 
       {/* Summary Card */}
-      <div className="rounded-lg p-6 border border-border mb-6">
+      <div key={`summary-${contentKey}`} className="rounded-lg p-6 border border-border mb-6 animate-fade-in-up animate-stagger-1">
         <div className="text-center">
           <p className="text-sm text-muted-foreground mb-2">Porcentaje de Anomalías</p>
           <p className="text-2xl tablet:text-3xl desktop:text-4xl font-bold">
@@ -131,7 +138,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
       </div>
 
       {/* Budget Card */}
-      <div className="rounded-lg p-6 border border-border mb-6">
+      <div key={`budget-${contentKey}`} className="rounded-lg p-6 border border-border mb-6 animate-fade-in-up animate-stagger-2">
         <div className="text-center">
           <p className="text-sm text-muted-foreground mb-2">
             {data.level === 'country' ? 'Gasto Total Nacional' :
@@ -158,7 +165,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
       </div>
 
       {/* Treemap Visualization */}
-      <div className="rounded-lg border border-border p-6 mb-6">
+      <div key={`treemap-${contentKey}`} className="rounded-lg border border-border p-6 mb-6 animate-fade-in-up animate-stagger-3">
         <h3 className="text-md font-medium mb-4">¿Dónde se concentra el sobregasto?</h3>
         <p className="text-xs tablet:text-sm font-light pb-4">Los bloques más grandes indican las categorías con mayor volumen de gasto en compras que pagaron significativamente más que el precio histórico normal.</p>
         {loadingTreemap && <TreemapSkeleton />}
