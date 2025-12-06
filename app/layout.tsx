@@ -12,6 +12,8 @@ import Link from "next/link";
 const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap"
 });
 
 export const metadata: Metadata = {

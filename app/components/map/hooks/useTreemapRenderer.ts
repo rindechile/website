@@ -1,4 +1,4 @@
-import { useEffect, RefObject } from 'react';
+import { useEffect, useRef, RefObject } from 'react';
 import * as d3 from 'd3';
 import type { TreemapNode, TreemapHierarchy } from '@/types/map';
 
@@ -31,8 +31,15 @@ export function useTreemapRenderer({
   onNodeClick,
   onNodeHover,
 }: UseTreemapRendererProps) {
+  // Track the last rendered data to determine if we should animate
+  const lastDataRef = useRef<TreemapHierarchy | null>(null);
+
   useEffect(() => {
     if (!svgRef.current || !data || dimensions.width === 0) return;
+
+    // Only animate when data changes, not on resize/scroll
+    const shouldAnimate = lastDataRef.current !== data;
+    lastDataRef.current = data;
 
     const { width, height } = dimensions;
 
@@ -90,21 +97,29 @@ export function useTreemapRenderer({
     const isClickable = (d: TreemapLayoutNode) =>
       d.data.type === 'category' || d.data.type === 'segment' || d.data.type === 'family';
 
-    // Add rectangles with initial state for animation
-    cells
+    // Add rectangles - animate only on data change, not resize
+    const rects = cells
       .append('rect')
-      .attr('width', 0)
-      .attr('height', 0)
       .attr('fill', d => colorScale(d.data.value))
       .attr('stroke', '#fff')
       .attr('stroke-width', 1)
       .attr('cursor', d => isClickable(d) ? 'pointer' : 'default')
-      .style('transition', 'opacity 0.2s, filter 0.2s')
-      .transition()
-      .duration(400)
-      .ease(d3.easeQuadOut)
-      .attr('width', d => d.x1 - d.x0)
-      .attr('height', d => d.y1 - d.y0);
+      .style('transition', 'opacity 0.2s, filter 0.2s');
+
+    if (shouldAnimate) {
+      rects
+        .attr('width', 0)
+        .attr('height', 0)
+        .transition()
+        .duration(400)
+        .ease(d3.easeQuadOut)
+        .attr('width', d => d.x1 - d.x0)
+        .attr('height', d => d.y1 - d.y0);
+    } else {
+      rects
+        .attr('width', d => d.x1 - d.x0)
+        .attr('height', d => d.y1 - d.y0);
+    }
 
     // Add event handlers after animation completes
     cells
@@ -156,7 +171,7 @@ export function useTreemapRenderer({
         .attr('font-size', `${fontSize}px`)
         .attr('font-weight', '500')
         .attr('pointer-events', 'none')
-        .style('opacity', 0);
+        .style('opacity', shouldAnimate ? 0 : 1);
 
       // Helper function to wrap text
       const words = name.split(/\s+/);
@@ -218,12 +233,14 @@ export function useTreemapRenderer({
           .text(line);
       });
 
-      // Animate text fade-in
-      textElement
-        .transition()
-        .duration(400)
-        .delay(200)
-        .style('opacity', 1);
+      // Animate text fade-in only on data change
+      if (shouldAnimate) {
+        textElement
+          .transition()
+          .duration(400)
+          .delay(200)
+          .style('opacity', 1);
+      }
     });
 
     // Cleanup on unmount
