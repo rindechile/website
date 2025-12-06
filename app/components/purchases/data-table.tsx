@@ -24,6 +24,8 @@ import {
 import { TableFilters } from "./TableFilters";
 import { TableStatus } from "./TableStatus";
 import { TablePagination } from "./TablePagination";
+import { PurchaseCardList } from "./PurchaseCardList";
+import type { Purchase } from "./columns";
 import type { FilterOptions, PaginationInfo, ServerSortingState, FilterState } from "./PurchasesTable";
 
 interface DataTableProps<TData, TValue> {
@@ -117,7 +119,13 @@ export function DataTable<TData, TValue>({
         onOpenChange={setIsFiltersOpen}
       />
 
-      <div className="border border-border rounded-xl">
+      {/* Mobile: Card View */}
+      <div className="tablet:hidden">
+        <PurchaseCardList purchases={data as Purchase[]} />
+      </div>
+
+      {/* Tablet+: Table View */}
+      <div className="hidden tablet:block border border-border rounded-xl">
         <Table>
 
           <TableHeader>
