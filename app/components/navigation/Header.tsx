@@ -60,9 +60,11 @@ export function Header() {
                         <SearchIcon className="size-4" />
                     </Button>
 
-                    <Button size="sm" className="hidden text-xs tablet:text-sm whitespace-nowrap">
-                        Metodología
-                    </Button>
+                    <Link href="/methodology">
+                        <Button size="sm" className="text-xs tablet:text-sm whitespace-nowrap">
+                            Metodología
+                        </Button>
+                    </Link>
                 </div>
             </header>
 

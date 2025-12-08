@@ -169,4 +169,58 @@
       transform: none;
     }
   }
+
+  /* Article page - LaTeX-like formula styling */
+  .formula {
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    background-color: color-mix(in oklch, var(--muted) 30%, transparent);
+    border-radius: 0.5rem;
+    font-size: 1.125rem;
+    letter-spacing: 0.025em;
+  }
+
+  .formula sub {
+    font-size: 0.75em;
+    vertical-align: baseline;
+    position: relative;
+    bottom: -0.25em;
+  }
+
+  .formula-inline {
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+  }
+
+  .formula-inline sub {
+    font-size: 0.75em;
+    vertical-align: baseline;
+    position: relative;
+    bottom: -0.2em;
+  }
+
+  /* Article page - Note callout */
+  .note {
+    border-left: 4px solid var(--secondary);
+    background-color: color-mix(in oklch, var(--muted) 30%, transparent);
+    padding: 1rem 1.5rem;
+    border-radius: 0 0.5rem 0.5rem 0;
+    margin: 1.5rem 0;
+  }
+
+  /* Article page - References section */
+  .references {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+  }
+
+  .references a {
+    word-break: break-all;
+  }
 }
