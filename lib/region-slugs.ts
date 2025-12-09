@@ -76,3 +76,13 @@ export function getRegionNameFromCode(code: number): string | null {
 export function isValidSlug(slug: string): boolean {
   return slugToCodeMap.has(slug);
 }
+
+/**
+ * Get region name from URL slug
+ * @param slug - URL slug (e.g., 'atacama')
+ * @returns Region name or null if invalid
+ */
+export function getRegionNameFromSlug(slug: string): string | null {
+  const region = REGION_SLUGS.find(r => r.slug === slug);
+  return region?.name || null;
+}

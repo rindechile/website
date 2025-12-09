@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import "./styles/globals.css";
 
 import { Outfit } from "next/font/google";
-import { Info } from "lucide-react";
 
-import { Header } from "./components/navigation/Header";
+import { AppSidebar } from "./components/navigation/AppSidebar";
 import { Footer } from "./components/navigation/Footer";
-import { Alert, AlertDescription } from "./components/ui/alert";
-import Link from "next/link";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "./components/ui/sidebar";
+import { Separator } from "./components/ui/separator";
+import { DynamicBreadcrumb } from "./components/navigation/DynamicBreadcrumb";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -51,28 +51,34 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${outfit.variable} flex flex-col min-h-screen antialiased bg-background text-foreground`}
+        className={`${outfit.variable} antialiased bg-background text-foreground`}
       >
         {/* Skip to main content link for keyboard users */}
         <a href="#main-content" className="skip-link">
           Saltar al contenido principal
         </a>
 
-        {/* Work in Progress Disclaimer */}
-        <Alert className="w-full py-4 hidden">
-          <Info className="h-4 w-4" />
-          <AlertDescription>
-            Este sitio web está en desarrollo activo. Si te gusta este proyecto, por favor <Link href="https://youtu.be/eC48TKl38LY" target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-4 hover:text-primary transition-colors">deja un like en nuestro video de YouTube</Link> para apoyarnos en el concurso del Gobierno de Chile – Transparenta Datos 2025.
-          </AlertDescription>
-        </Alert>
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b">
+              <div className="flex items-center gap-2 px-4">
+                <SidebarTrigger className="-ml-1" />
+                <Separator
+                  orientation="vertical"
+                  className="mr-2 data-[orientation=vertical]:h-4"
+                />
+                <DynamicBreadcrumb />
+              </div>
+            </header>
 
-        <Header />
+            <main id="main-content" className="flex-1 p-6 tablet:p-8" tabIndex={-1}>
+              {children}
+            </main>
 
-        <main id="main-content" className="p-6 tablet:p-8 gap-12 tablet:gap-16" tabIndex={-1}>
-          {children}
-        </main>
-
-        <Footer />
+            <Footer />
+          </SidebarInset>
+        </SidebarProvider>
       </body>
     </html>
   );
