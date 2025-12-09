@@ -60,7 +60,7 @@ export default function RootLayout({
         </a>
 
         {/* Work in Progress Disclaimer */}
-        <Alert className="w-full py-4">
+        <Alert className="w-full py-4 hidden">
           <Info className="h-4 w-4" />
           <AlertDescription>
             Este sitio web está en desarrollo activo. Si te gusta este proyecto, por favor <Link href="https://youtu.be/eC48TKl38LY" target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-4 hover:text-primary transition-colors">deja un like en nuestro video de YouTube</Link> para apoyarnos en el concurso del Gobierno de Chile – Transparenta Datos 2025.
