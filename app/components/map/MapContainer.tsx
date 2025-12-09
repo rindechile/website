@@ -65,10 +65,10 @@ export function MapContainer() {
     <div className="w-full py-8 flex flex-col bg-secondary rounded-xl border border-border">
       {/* Header */}
       <div className="px-8">
-        <h2 className="text-2xl pb-2 font-semibold max-w-[30rem]">
+        <h2 className="text-xl tablet:text-2xl pb-2 font-semibold">
           ¿Dónde están las compras públicas que merecen atención?
         </h2>
-        <p className="text-sm text-secondary-foreground font-medium max-w-[25rem]">Descúbre dónde se concentran las compras que superan significativamente el rango histórico de precio. Explora a nivel nacional, regional y municipal.</p>
+        <p className="text-xs text-secondary-foreground tablet:text-sm font-medium tablet:max-w-[35rem] desktop:max-w-[38rem]">Descúbre dónde se concentran las compras que superan significativamente el rango histórico de precio. Explora a nivel nacional, regional y municipal.</p>
       </div>
 
       {/* Main Content: Map */}
@@ -90,7 +90,7 @@ export function MapContainer() {
 
       {/* Legend */}
       <div className="px-8">
-        <MapLegend colorScale={colorScale} nationalAverage={nationalAverage} />
+        <MapLegend colorScale={colorScale} />
       </div>
     </div>
   );

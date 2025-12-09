@@ -74,11 +74,11 @@ export function ChileMap({
       scale = 800;
       rotate = [70.5, 37, 0];
     } else if (viewportSize === 'tablet') {
-      scale = 800;
-      rotate = [70.5, 37, 0];
+      scale = 1000;
+      rotate = [70.5, 37, 90];
     } else {
-      scale = 800;
-      rotate = [70.5, 37, 0];
+      scale = 1500;
+      rotate = [70.5, 37, 90];
     }
     
     return baseProjection

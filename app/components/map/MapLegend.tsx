@@ -3,11 +3,9 @@ import { Badge } from '@/app/components/ui/badge';
 
 interface MapLegendProps {
   colorScale: ColorScale;
-  showStatistics?: boolean;
-  nationalAverage?: number;
 }
 
-export function MapLegend({ colorScale, showStatistics = true, nationalAverage }: MapLegendProps) {
+export function MapLegend({ colorScale}: MapLegendProps) {
   const { breakpoints, domain } = colorScale;
   const maxValue = domain[1];
   
@@ -56,13 +54,6 @@ export function MapLegend({ colorScale, showStatistics = true, nationalAverage }
           );
         })}
       </div>
-
-      {/* Stats */}
-      {showStatistics && nationalAverage !== undefined && (
-          <Badge variant="outline" className="w-full bg-white/5 border-white/20">
-            <p className="font-medium">Promedio nacional:</p> {nationalAverage.toFixed(2)}%
-          </Badge>
-        )}
     </div>
   );
 }
