@@ -184,7 +184,8 @@ export function MapProvider({
       const regionName = viewState.selectedRegion.properties.Region;
 
       // If municipality is selected, show municipality data
-      if (viewState.selectedMunicipality && selectedMunicipalityData?.data) {
+      // Note: selectedMunicipality may be null for municipalities without GeoJSON (e.g., islands)
+      if (selectedMunicipalityData?.data) {
         // Budget data is already in selectedMunicipalityData.data from the enriched JSON
         return {
           level: 'municipality',
