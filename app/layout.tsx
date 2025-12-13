@@ -60,7 +60,7 @@ export default function RootLayout({
         <div className="[--header-height:3.5rem]">
           <SidebarProvider className="flex flex-col">
             <SiteHeader />
-            <div className="flex flex-1">
+            <div className="flex flex-1 overflow-hidden">
               <AppSidebar />
               <SidebarInset>
                 <main id="main-content" className="flex-1 p-6 tablet:p-8" tabIndex={-1}>
