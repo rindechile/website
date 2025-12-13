@@ -29,49 +29,52 @@ export function SiteHeader() {
   return (
     <>
       <header className="bg-background sticky top-0 z-[60] flex w-full items-center">
-        <div className="flex h-(--header-height) w-full items-center justify-between gap-2 px-4">
+        <div className="flex h-(--header-height) w-full items-center justify-between gap-2 py-8 px-6 tablet:p-8">
           {/* Left: Sidebar Toggle (tablet/desktop) + Logo */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-16">
+            <Link href="/">
+              <Image
+                src="/logo-text.svg"
+                alt="Rinde Chile Logo"
+                loading="eager"
+                width={100}
+                height={100}
+              />
+            </Link>
             <Button
               className="hidden h-8 w-8 md:flex"
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
             >
-              <SidebarIcon />
+              <SidebarIcon className="stroke-muted" />
             </Button>
-            <Link href="/" className="flex items-center gap-2">
-              <Image
-                src="/logo.svg"
-                alt="Rinde Chile Logo"
-                width={32}
-                height={32}
-                className="size-8"
-              />
-              <span className="truncate font-semibold">RindeChile</span>
-            </Link>
           </div>
 
           {/* Right: Search Button + Sidebar Toggle (mobile) */}
           <div className="flex items-center gap-2">
+
+            {/* Search Button */}
             <Button
               variant="outline"
               className="gap-2"
               onClick={() => setSearchOpen(true)}
             >
-              <Search className="size-4" />
-              <span className="hidden sm:inline">Buscar comuna</span>
-              <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground sm:inline-flex">
+              <Search className="size-4 stroke-muted"/>
+              <span className="hidden text-muted tablet:inline">Buscar comuna</span>
+              <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-accent px-1.5 font-mono text-[10px] font-medium text-accent-foreground tablet:inline-flex">
                 <span className="text-xs">⌘</span>K
               </kbd>
             </Button>
+
+            {/* Sidebar Toggle for Mobile */}
             <Button
-              className="h-8 w-8 md:hidden"
+              className="tablet:hidden"
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
             >
-              <SidebarIcon />
+              <SidebarIcon className="size-4 stroke-muted" />
             </Button>
           </div>
         </div>
