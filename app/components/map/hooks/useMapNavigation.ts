@@ -211,6 +211,52 @@ export function useMapNavigation({
 
           // Clear pending selection
           setPendingMunicipalityId(null);
+        } else {
+          // Fallback for municipalities not in GeoJSON (e.g., islands)
+          const fetchMunicipalityFromAPI = async () => {
+            try {
+              const response = await fetch(`/api/municipalities/${municipalityIdToSelect}`);
+              if (!response.ok) {
+                throw new Error('Failed to fetch municipality');
+              }
+              const data = (await response.json()) as {
+                id: number;
+                name: string;
+                region_id: number;
+                region_name: string;
+                budget: number | null;
+                budget_per_capita: number | null;
+                porcentaje_sobreprecio: number;
+                compras_caras: number;
+                compras_totales: number;
+              };
+
+              // Update municipality data for the panel (no geometry to highlight)
+              setSelectedMunicipalityData({
+                name: data.name,
+                regionName: data.region_name,
+                municipalityId: data.id,
+                data: {
+                  porcentaje_sobreprecio: data.porcentaje_sobreprecio,
+                  compras_caras: data.compras_caras,
+                  compras_totales: data.compras_totales,
+                  budget: data.budget,
+                  budget_per_capita: data.budget_per_capita,
+                },
+              });
+
+              // Announce to screen readers
+              onAnnounce(`Mostrando detalles de ${data.name}`);
+
+              // Clear pending selection
+              setPendingMunicipalityId(null);
+            } catch (error) {
+              console.error('Error fetching municipality data:', error);
+              setPendingMunicipalityId(null);
+            }
+          };
+
+          fetchMunicipalityFromAPI();
         }
       }
     }

@@ -1,11 +1,24 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",
-  "name": "transparenta",
+  "name": "rindechile",
   "compatibility_date": "2025-03-25",
   "compatibility_flags": [
     "nodejs_compat"
   ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    },
+    "traces": {
+      "enabled": true,
+      "persist": true,
+      "head_sampling_rate": 1
+    }
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
@@ -14,7 +27,7 @@
     {
       "binding": "DB",
       "database_name": "transparenta",
-      "database_id": "YOUR_DATABASE_ID",
+      "database_id": "c2d03ab2-b51b-4d73-839c-2f85ba2afecd",
       "migrations_dir": ".drizzle-out"
     }
   ]

@@ -1,14 +1,29 @@
-  main = ".open-next/worker.js"
-  name = "transparenta"
-  compatibility_date = "2025-03-25"
-  compatibility_flags = ["nodejs_compat"]
-  [assets]
-  directory = ".open-next/assets"
-  binding = "ASSETS"
+main = ".open-next/worker.js"
+name = "rindechile"
+compatibility_date = "2025-03-25"
+compatibility_flags = ["nodejs_compat"]
 
-[d1_databases]
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[[d1_databases]]
 binding = "DB"
 database_name = "transparenta"
-# Set your D1 database ID here or use CLOUDFLARE_DATABASE_ID environment variable
-database_id = "YOUR_DATABASE_ID"
+database_id = "c2d03ab2-b51b-4d73-839c-2f85ba2afecd"
 migrations_dir = ".drizzle-out"
+
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = true
+persist = true
+head_sampling_rate = 1
