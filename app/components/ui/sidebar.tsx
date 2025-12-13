@@ -302,14 +302,22 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
 }
 
 function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
+  const { openMobile } = useSidebar()
+
   return (
     <main
       data-slot="sidebar-inset"
       className={cn(
         "bg-background relative flex min-w-0 flex-1 flex-col",
         "md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm",
+        openMobile && "pointer-events-none",
         className
       )}
+      style={{
+        transform: openMobile ? "translateX(20rem)" : "translateX(0)",
+        filter: openMobile ? "blur(4px)" : "blur(0)",
+        transition: "transform 200ms ease-in-out, filter 200ms ease-in-out",
+      }}
       {...props}
     />
   )
