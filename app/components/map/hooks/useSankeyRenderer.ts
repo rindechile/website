@@ -10,6 +10,7 @@ import type {
   NodeLegendItem,
 } from '@/types/sankey';
 import { calculatePercentage } from '@/app/lib/sankey-transform';
+import { useViewportSize } from './useViewportSize';
 
 interface UseSankeyRendererProps {
   svgRef: RefObject<SVGSVGElement | null>;
@@ -22,6 +23,14 @@ interface UseSankeyRendererProps {
 // Letters for labeling nodes
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
+// Format currency for accessibility labels
+const formatCurrencyLabel = (value: number): string =>
+  value.toLocaleString('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    maximumFractionDigits: 0,
+  });
+
 export function useSankeyRenderer({
   svgRef,
   data,
@@ -32,6 +41,10 @@ export function useSankeyRenderer({
   // Track the last rendered data to determine if we should animate
   const lastDataRef = useRef<SankeyData | null>(null);
 
+  // Responsive sizing for touch targets
+  const viewportSize = useViewportSize();
+  const isMobile = viewportSize === 'mobile';
+
   useEffect(() => {
     if (!svgRef.current || !data || dimensions.width === 0) return;
 
@@ -40,6 +53,11 @@ export function useSankeyRenderer({
     lastDataRef.current = data;
 
     const { width, height } = dimensions;
+
+    // Responsive sizing - larger touch targets on mobile
+    const nodeWidth = isMobile ? 28 : 18;
+    const nodePadding = isMobile ? 20 : 12;
+    const letterFontSize = isMobile ? '14px' : '12px';
 
     // Clear previous content
     const svg = d3.select(svgRef.current);
@@ -58,12 +76,12 @@ export function useSankeyRenderer({
     // Source node color (neutral/muted)
     const sourceColor = 'oklch(0.5869 0.0025 345.21)';
 
-    // Configure sankey generator
+    // Configure sankey generator with responsive sizing
     const sankeyGenerator = sankey<SankeyNode, SankeyLink>()
       .nodeId(d => d.id)
       .nodeAlign(sankeyJustify)
-      .nodeWidth(18)
-      .nodePadding(12)
+      .nodeWidth(nodeWidth)
+      .nodePadding(nodePadding)
       .extent([[1, 10], [width - 1, height - 10]]);
 
     // Create a copy of data to avoid mutating the original
@@ -85,9 +103,12 @@ export function useSankeyRenderer({
     const g = svg.append('g');
 
     // --- Render Links ---
-    const linkGroup = g.append('g').attr('class', 'links');
+    const linkGroup = g.append('g')
+      .attr('class', 'links')
+      .attr('role', 'list')
+      .attr('aria-label', 'Flujos de presupuesto');
 
-    const linkPaths = linkGroup
+    linkGroup
       .selectAll('path')
       .data(links)
       .join('path')
@@ -98,12 +119,17 @@ export function useSankeyRenderer({
         return d3.color(targetColor)?.copy({ opacity: 0.3 })?.toString() || targetColor;
       })
       .attr('stroke-width', d => Math.max(1, d.width))
+      .attr('role', 'listitem')
+      .attr('aria-label', d => {
+        const percentage = calculatePercentage(d.value, totalValue).toFixed(1);
+        return `Flujo de ${d.source.name} a ${d.target.name}: ${formatCurrencyLabel(d.value)}, ${percentage}% del total`;
+      })
       .style('cursor', 'default')
       .style('transition', 'opacity 0.2s, filter 0.2s');
 
     // Animate links on data change
     if (shouldAnimate) {
-      linkPaths.each(function () {
+      linkGroup.selectAll('path').each(function () {
         const path = d3.select(this);
         const node = this as SVGPathElement;
         const totalLength = node.getTotalLength();
@@ -136,11 +162,7 @@ export function useSankeyRenderer({
       .attr('tabindex', d => d.isClickable ? '0' : null)
       .attr('role', d => d.isClickable ? 'button' : null)
       .attr('aria-label', d => {
-        const value = d.value.toLocaleString('es-CL', {
-          style: 'currency',
-          currency: 'CLP',
-          maximumFractionDigits: 0,
-        });
+        const value = formatCurrencyLabel(d.value);
         const percentage = calculatePercentage(d.value, totalValue).toFixed(1);
         const overpricing = d.overpricingRate !== undefined
           ? `, sobreprecio ${(d.overpricingRate * 100).toFixed(1)}%`
@@ -149,8 +171,7 @@ export function useSankeyRenderer({
           ? `${d.name}, ${value}, ${percentage}% del total${overpricing}. Presiona Enter para ver más detalles.`
           : `${d.name}, ${value}, ${percentage}% del total${overpricing}.`;
       })
-      .style('transition', 'opacity 0.2s, filter 0.2s')
-      .style('outline', 'none');
+      .style('transition', 'opacity 0.2s, filter 0.2s');
 
     // Animate node width on data change
     if (shouldAnimate) {
@@ -181,9 +202,10 @@ export function useSankeyRenderer({
       })
       .on('focus', (event, d) => {
         const node = d as SankeyLayoutNode;
+        // Use CSS outline for better visibility (works across browsers)
         d3.select(event.currentTarget)
-          .attr('stroke', 'oklch(0.708 0 0)')
-          .attr('stroke-width', 3);
+          .style('outline', '3px solid oklch(0.708 0 0)')
+          .style('outline-offset', '2px');
         if (node.isClickable) {
           d3.select(event.currentTarget)
             .style('opacity', 0.85)
@@ -192,8 +214,8 @@ export function useSankeyRenderer({
       })
       .on('blur', (event) => {
         d3.select(event.currentTarget)
-          .attr('stroke', null)
-          .attr('stroke-width', null)
+          .style('outline', 'none')
+          .style('outline-offset', '0')
           .style('opacity', 1)
           .style('filter', 'brightness(1)');
       })
@@ -248,13 +270,14 @@ export function useSankeyRenderer({
       // Render letter centered on the node
       const letterElement = d3.select(this).append('text')
         .attr('fill', 'white')
-        .attr('font-size', '12px')
+        .attr('font-size', letterFontSize)
         .attr('font-weight', '700')
         .attr('pointer-events', 'none')
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'central')
         .attr('x', nodeWidth / 2)
         .attr('y', nodeHeight / 2)
+        .attr('aria-hidden', 'true')
         .style('opacity', shouldAnimate ? 0 : 1)
         .style('text-shadow', '0 1px 2px rgba(0,0,0,0.5)')
         .text(letterData.letter);
@@ -273,5 +296,5 @@ export function useSankeyRenderer({
     return () => {
       svg.selectAll('*').remove();
     };
-  }, [data, dimensions, onNodeClick, onNodesRendered, svgRef]);
+  }, [data, dimensions, isMobile, onNodeClick, onNodesRendered, svgRef]);
 }

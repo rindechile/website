@@ -10,6 +10,7 @@ import { transformToSankeyData } from '@/app/lib/sankey-transform';
 import { SankeyBreadcrumbs } from './SankeyBreadcrumbs';
 import { SankeyNodeLegend } from './SankeyNodeLegend';
 import { SankeyLegend } from './SankeyLegend';
+import { useFormatters } from '@/app/lib/hooks/useFormatters';
 
 interface SankeyChartProps {
   data: TreemapHierarchy;
@@ -20,10 +21,14 @@ interface SankeyChartProps {
 export function SankeyChart({ data: initialData, level, code }: SankeyChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { formatCurrency } = useFormatters();
 
   // Legend state
   const [legendNodes, setLegendNodes] = useState<NodeLegendItem[]>([]);
   const [isLegendExpanded, setIsLegendExpanded] = useState(false);
+
+  // Aria-live announcements for screen readers
+  const [ariaMessage, setAriaMessage] = useState('');
 
   // Custom hooks for navigation and rendering
   const {
@@ -65,10 +70,17 @@ export function SankeyChart({ data: initialData, level, code }: SankeyChartProps
     setIsLegendExpanded(false);
   }, [initialData, resetNavigation]);
 
-  // Collapse legend when drilling down
+  // Collapse legend when drilling down and announce change to screen readers
   useEffect(() => {
     setIsLegendExpanded(false);
-  }, [data]);
+    // Announce navigation to screen readers
+    if (data.children.length > 0) {
+      const totalValue = data.children.reduce((sum, child) => sum + child.value, 0);
+      setAriaMessage(
+        `Mostrando ${data.name} con ${data.children.length} subcategorías. Total: ${formatCurrency(totalValue)}`
+      );
+    }
+  }, [data, formatCurrency]);
 
   // Render Sankey visualization
   useSankeyRenderer({
@@ -81,6 +93,16 @@ export function SankeyChart({ data: initialData, level, code }: SankeyChartProps
 
   return (
     <div className="relative">
+      {/* Screen reader announcements */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {ariaMessage}
+      </div>
+
       {/* Breadcrumb Navigation */}
       <SankeyBreadcrumbs
         breadcrumbs={breadcrumbs}
@@ -100,9 +122,17 @@ export function SankeyChart({ data: initialData, level, code }: SankeyChartProps
         )}
         <svg
           ref={svgRef}
+          role="img"
+          aria-label="Diagrama Sankey mostrando la distribución del presupuesto"
+          aria-describedby="sankey-description"
           className="w-full rounded-lg bg-card border border-border"
           style={{ height: dimensions.height || 200 }}
-        />
+        >
+          <desc id="sankey-description">
+            Diagrama interactivo que muestra el flujo de presupuesto entre categorías.
+            Usa Tab para navegar entre nodos y Enter para explorar.
+          </desc>
+        </svg>
       </div>
 
       {/* Color Legend */}
