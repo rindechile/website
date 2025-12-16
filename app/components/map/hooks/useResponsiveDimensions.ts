@@ -16,9 +16,19 @@ export function useResponsiveDimensions(containerRef: RefObject<HTMLDivElement |
     };
 
     updateDimensions();
+
+    // Use ResizeObserver to watch for container size changes
+    const resizeObserver = new ResizeObserver(() => {
+      updateDimensions();
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    // Also listen to window resize as fallback
     window.addEventListener('resize', updateDimensions);
 
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener('resize', updateDimensions);
     };
   }, [containerRef]);

@@ -2,7 +2,7 @@ import { Skeleton } from "@/app/components/ui/skeleton";
 
 export function DetailPanelSkeleton() {
   return (
-    <div className="h-full overflow-y-auto rounded-xl bg-card p-8 border border-border">
+    <div className="h-full overflow-y-auto rounded-lg bg-card p-8 border border-border">
       {/* Header Skeleton */}
       <div className="mb-6">
         <div className="flex items-start justify-between mb-2">

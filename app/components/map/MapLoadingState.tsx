@@ -2,7 +2,7 @@ import { Skeleton } from '@/app/components/ui/skeleton';
 
 export function MapLoadingState() {
   return (
-    <div className="w-full py-8 tablet:w-2/5 flex flex-col bg-secondary rounded-xl border border-border animate-fade-in">
+    <div className="w-full py-8 tablet:w-2/5 flex flex-col bg-secondary rounded-lg border border-border animate-fade-in">
       {/* Header Skeleton */}
       <div className="px-8">
         <Skeleton className="h-7 w-64 bg-foreground/10 mb-2" />

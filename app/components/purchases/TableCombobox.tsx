@@ -44,7 +44,7 @@ export function TableCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between rounded-xl"
+          className="w-full justify-between rounded-lg"
         >
           <span className="lowercase first-letter:uppercase">{value || placeholder}</span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

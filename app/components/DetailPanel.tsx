@@ -151,7 +151,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
       <div key={`treemap-${contentKey}`} className="p-6 flex flex-col animate-fade-in-up animate-stagger-3 flex-1 min-h-0">
         <h3 className="text-md font-medium mb-4">¿Dónde se concentra el sobregasto?</h3>
         <p className="text-xs tablet:text-sm font-light pb-4">Los bloques más grandes indican las categorías con mayor volumen de gasto en compras que pagaron significativamente más que el precio histórico normal.</p>
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 w-full flex items-center">
           {loadingTreemap && <TreemapSkeleton />}
           {treemapError && (
             <div className="flex items-center justify-center h-full">
@@ -174,11 +174,13 @@ export function DetailPanel({ data }: DetailPanelProps) {
             </div>
           )}
           {!loadingTreemap && !treemapError && treemapData && (
-            <TreemapChart
-              data={treemapData}
-              level={getTreemapProps().level}
-              code={getTreemapProps().code}
-            />
+            <div className="w-full">
+              <TreemapChart
+                data={treemapData}
+                level={getTreemapProps().level}
+                code={getTreemapProps().code}
+              />
+            </div>
           )}
           {!loadingTreemap && !treemapError && !treemapData && (
             <div className="text-center h-full flex items-center justify-center">
@@ -189,29 +191,29 @@ export function DetailPanel({ data }: DetailPanelProps) {
       </div>
 
       {/* Legend and Disclaimer */}
-      <div key={`footer-${contentKey}`} className="p-6 border-t animate-fade-in-up animate-stagger-4 flex flex-col gap-8 tablet:flex-row justify-between shrink-0">
-        <div className='flex flex-col gap-4'>
+      <div key={`footer-${contentKey}`} className="border-t animate-fade-in-up animate-stagger-4 flex flex-col gap-8 desktop:flex-row justify-between shrink-0">
+        <div className='flex flex-col gap-4 p-6'>
           <h4 className=''>Porcentaje de compras con sobreprecio</h4>
           <div className='flex flex-row gap-4'>
 
             <div className='flex flex-col gap-2 w-full'>
               <p className='text-xs'>Bajo</p>
-              <div className='h-4 w-full tablet:w-32 rounded-xs bg-foreground'></div>
+              <div className='h-4 w-full desktop:w-32 rounded-xs bg-foreground'></div>
             </div>
 
             <div className='flex flex-col gap-2 w-full'>
               <p className='text-xs'>Medio</p>
-              <div className='h-4 w-full tablet:w-32 rounded-xs bg-muted'></div>
+              <div className='h-4 w-full desktop:w-32 rounded-xs bg-muted'></div>
             </div>
 
             <div className='flex flex-col gap-2 w-full'>
               <p className='text-xs'>Alto</p>
-              <div className='h-4 w-full tablet:w-32 rounded-xs bg-secondary'></div>
+              <div className='h-4 w-full desktop:w-32 rounded-xs bg-secondary'></div>
             </div>
           </div>
         </div>
 
-        <div className='flex flex-col gap-4'>
+        <div className='flex flex-col gap-4 border-t desktop:border-t-0 p-6'>
           <h4 className=''>Disclaimer</h4>
           <p className='text-xs'>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
         </div>

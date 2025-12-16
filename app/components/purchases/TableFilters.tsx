@@ -32,7 +32,7 @@ export function TableFilters<TData>({
   return (
     <Collapsible open={isOpen} onOpenChange={onOpenChange} className="space-y-2">
       <CollapsibleTrigger asChild>
-        <div className="bg-card flex items-center justify-between cursor-pointer hover:bg-muted/50 rounded-xl border border-border px-4 py-3 transition-colors">
+        <div className="bg-card flex items-center justify-between cursor-pointer hover:bg-muted/50 rounded-lg border border-border px-4 py-3 transition-colors">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold">
               Filtros

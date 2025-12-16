@@ -62,7 +62,7 @@ export function MapContainer() {
   }
 
   return (
-    <div className="w-full p-6 flex flex-col rounded-xl border border-border">
+    <div className="w-full p-6 flex flex-col rounded-lg border border-border">
 
       {/* Main Content: Map */}
       <div className="flex-1 overflow-hidden">

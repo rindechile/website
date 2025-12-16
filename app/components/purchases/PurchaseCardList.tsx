@@ -10,7 +10,7 @@ interface PurchaseCardListProps {
 export function PurchaseCardList({ purchases }: PurchaseCardListProps) {
   if (purchases.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center border border-border rounded-xl bg-card">
+      <div className="flex flex-col items-center justify-center py-12 text-center border border-border rounded-lg bg-card">
         <p className="text-muted-foreground">No se han encontrado datos.</p>
       </div>
     );

@@ -50,7 +50,7 @@ export function PurchaseCard({ purchase, animationDelay = 0 }: PurchaseCardProps
       role="button"
       tabIndex={0}
       aria-label={`Ver detalles de compra: ${purchase.item_name}. Abre en nueva pestaña.`}
-      className="bg-background border border-border rounded-xl cursor-pointer hover:bg-muted/50 active:scale-[0.98] transition-all animate-fade-in-up focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="bg-background border border-border rounded-lg cursor-pointer hover:bg-muted/50 active:scale-[0.98] transition-all animate-fade-in-up focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       style={{ animationDelay: `${animationDelay}ms` }}
     >
       {/* Header: Item Name + ExcessBadge */}

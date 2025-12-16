@@ -127,7 +127,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Tablet+: Table View */}
-      <div className="hidden tablet:block border border-border rounded-xl">
+      <div className="hidden tablet:block border border-border rounded-lg">
         <Table aria-label="Tabla de compras públicas">
           <TableCaption className="sr-only">
             Tabla de compras públicas con posible sobreprecio. Presiona Enter o Espacio en una fila para ver más detalles en ChileCompra.
