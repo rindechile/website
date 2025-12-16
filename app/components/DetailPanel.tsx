@@ -104,10 +104,10 @@ export function DetailPanel({ data }: DetailPanelProps) {
     : `municipality-${data.municipalityId}`;
 
   return (
-    <div className="h-full rounded-lg border border-border">
+    <div className="h-full rounded-lg border border-border flex flex-col">
 
       {/* Header */}
-      <div key={`header-${contentKey}`} className="p-6 animate-fade-in border-b">
+      <div key={`header-${contentKey}`} className="p-6 animate-fade-in border-b shrink-0">
         <div className="flex items-start justify-between mb-2">
 
           <h2 className="text-2xl font-semibold">{getTitle()}</h2>
@@ -119,7 +119,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
       </div>
 
       {/* Summary Data*/}
-      <div key={`summary-${contentKey}`} className="p-6 border-b animate-fade-in-up animate-stagger-1">
+      <div key={`summary-${contentKey}`} className="p-6 border-b animate-fade-in-up animate-stagger-1 shrink-0">
         <div className="flex flex-col tablet:flex-row justify-between gap-4">
 
           <MetricCard
@@ -148,46 +148,48 @@ export function DetailPanel({ data }: DetailPanelProps) {
       </div>
 
       {/* Treemap Visualization */}
-      <div key={`treemap-${contentKey}`} className="p-6 flex flex-col animate-fade-in-up animate-stagger-3">
+      <div key={`treemap-${contentKey}`} className="p-6 flex flex-col animate-fade-in-up animate-stagger-3 flex-1 min-h-0">
         <h3 className="text-md font-medium mb-4">¿Dónde se concentra el sobregasto?</h3>
         <p className="text-xs tablet:text-sm font-light pb-4">Los bloques más grandes indican las categorías con mayor volumen de gasto en compras que pagaron significativamente más que el precio histórico normal.</p>
-        {loadingTreemap && <TreemapSkeleton />}
-        {treemapError && (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <svg
-                className="mx-auto h-12 w-12 text-destructive mb-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-              <p className="text-sm text-destructive">{treemapError}</p>
+        <div className="flex-1 min-h-0">
+          {loadingTreemap && <TreemapSkeleton />}
+          {treemapError && (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <svg
+                  className="mx-auto h-12 w-12 text-destructive mb-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+                <p className="text-sm text-destructive">{treemapError}</p>
+              </div>
             </div>
-          </div>
-        )}
-        {!loadingTreemap && !treemapError && treemapData && (
-          <TreemapChart
-            data={treemapData}
-            level={getTreemapProps().level}
-            code={getTreemapProps().code}
-          />
-        )}
-        {!loadingTreemap && !treemapError && !treemapData && (
-          <div className="text-center py-12">
-            <p className="text-sm text-muted-foreground">No hay datos disponibles</p>
-          </div>
-        )}
+          )}
+          {!loadingTreemap && !treemapError && treemapData && (
+            <TreemapChart
+              data={treemapData}
+              level={getTreemapProps().level}
+              code={getTreemapProps().code}
+            />
+          )}
+          {!loadingTreemap && !treemapError && !treemapData && (
+            <div className="text-center h-full flex items-center justify-center">
+              <p className="text-sm text-muted-foreground">No hay datos disponibles</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Legend and Disclaimer */}
-      <div key={`footer-${contentKey}`} className="p-6 border-t animate-fade-in-up animate-stagger-4 flex flex-row justify-between">
+      <div key={`footer-${contentKey}`} className="p-6 border-t animate-fade-in-up animate-stagger-4 flex flex-row justify-between shrink-0">
         <div className='flex flex-col gap-4'>
           <h4 className=''>Porcentaje de compras con sobreprecio</h4>
           <div className='flex flex-row gap-4'>
