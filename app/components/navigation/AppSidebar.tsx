@@ -21,6 +21,10 @@ const navItems = [
     url: '/',
   },
   {
+    title: 'Análisis de Precios',
+    url: '/prices',
+  },
+  {
     title: 'Metodología',
     url: '/methodology',
   },
@@ -43,7 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.url}
+                    isActive={pathname === item.url || (item.url !== '/' && pathname.startsWith(item.url))}
                     tooltip={item.title}
                   >
                     <Link href={item.url}>

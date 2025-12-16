@@ -44,6 +44,44 @@ export function DynamicBreadcrumb() {
     );
   }
 
+  // Prices listing page
+  if (pathname === '/prices') {
+    return (
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem className="hidden md:block">
+            <BreadcrumbLink href="/">Inicio</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator className="hidden md:block" />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Análisis de Precios</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    );
+  }
+
+  // Prices detail page
+  if (pathname.startsWith('/prices/')) {
+    return (
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem className="hidden md:block">
+            <BreadcrumbLink href="/">Inicio</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator className="hidden md:block" />
+          <BreadcrumbItem className="hidden md:block">
+            <BreadcrumbLink href="/prices">Análisis de Precios</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator className="hidden md:block" />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Detalle del Producto</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    );
+  }
+
   // Region pages (dynamic routes like /metropolitana, /valparaiso, etc.)
   const slug = pathname.slice(1); // Remove leading slash
   const regionName = getRegionNameFromSlug(slug);
