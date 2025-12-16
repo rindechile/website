@@ -104,7 +104,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
     : `municipality-${data.municipalityId}`;
 
   return (
-    <div className="h-full overflow-y-auto rounded-lg border border-border">
+    <div className="h-full rounded-lg border border-border">
 
       {/* Header */}
       <div key={`header-${contentKey}`} className="p-6 animate-fade-in border-b">
@@ -148,7 +148,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
       </div>
 
       {/* Treemap Visualization */}
-      <div key={`treemap-${contentKey}`} className="p-6 animate-fade-in-up animate-stagger-3">
+      <div key={`treemap-${contentKey}`} className="p-6 flex flex-col animate-fade-in-up animate-stagger-3">
         <h3 className="text-md font-medium mb-4">¿Dónde se concentra el sobregasto?</h3>
         <p className="text-xs tablet:text-sm font-light pb-4">Los bloques más grandes indican las categorías con mayor volumen de gasto en compras que pagaron significativamente más que el precio histórico normal.</p>
         {loadingTreemap && <TreemapSkeleton />}
@@ -184,6 +184,35 @@ export function DetailPanel({ data }: DetailPanelProps) {
             <p className="text-sm text-muted-foreground">No hay datos disponibles</p>
           </div>
         )}
+      </div>
+
+      {/* Legend and Disclaimer */}
+      <div key={`footer-${contentKey}`} className="p-6 border-t animate-fade-in-up animate-stagger-4 flex flex-row justify-between">
+        <div className='flex flex-col gap-4'>
+          <h4 className=''>Porcentaje de compras con sobreprecio</h4>
+          <div className='flex flex-row gap-4'>
+
+            <div className='flex flex-col gap-2'>
+              <p className='text-xs'>Bajo</p>
+              <div className='h-4 w-32 rounded-xs bg-foreground'></div>
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <p className='text-xs'>Medio</p>
+              <div className='h-4 w-32 rounded-xs bg-muted'></div>
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <p className='text-xs'>Alto</p>
+              <div className='h-4 w-32 rounded-xs bg-secondary'></div>
+            </div>
+          </div>
+        </div>
+
+        <div className='flex flex-col gap-4'>
+          <h4 className=''>Disclaimer</h4>
+          <p className='text-xs'>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
+        </div>
       </div>
 
     </div>

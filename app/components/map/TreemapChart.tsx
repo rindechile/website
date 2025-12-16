@@ -97,9 +97,6 @@ export function TreemapChart({ data: initialData, level, code }: TreemapChartPro
         {/* Tooltip */}
         <TreemapTooltip data={tooltipData} />
       </div>
-
-      {/* Legend */}
-      <TreemapLegend breadcrumbsLength={breadcrumbs.length} />
     </div>
   );
 }
