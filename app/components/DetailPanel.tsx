@@ -118,45 +118,37 @@ export function DetailPanel({ data }: DetailPanelProps) {
         </div>
       </div>
 
-      {/* Summary Card */}
+      {/* Summary Data*/}
       <div key={`summary-${contentKey}`} className="p-6 border-b animate-fade-in-up animate-stagger-1">
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-col tablet:flex-row justify-between gap-4">
+
           <MetricCard
             value={formatPercentage(data.data.porcentaje_sobreprecio)}
             label="Porcentaje de Anomalías"
           />
-          <div className='flex flex-row gap-4 items-end'>
-            {data.budget !== null ? (
-              <>
+
+          <div className='flex flex-col tablet:flex-row gap-4'>
+            <MetricCard
+              variant="ghost"
+              value={data.budget !== null ? formatCurrency(data.budget) : 'No disponible'}
+              label= {data.level === 'country' ? 'Gasto Total Nacional' :
+                      data.level === 'region' ? 'Gasto Total Regional' :
+                      'Gasto Total Municipal'}
+            />
+
+            {data.level === 'municipality' && data.budgetPerCapita !== null && (
               <MetricCard
                 variant="ghost"
-                value={formatCurrency(data.budget)}
-                label= {data.level === 'country' ? 'Gasto Total Nacional' :
-             data.level === 'region' ? 'Gasto Total Regional' :
-             'Gasto Total Municipal'}
+                value={data.budgetPerCapita !== null ? formatCurrency(data.budgetPerCapita) : 'No disponible'}
+                label= "Per Cápita"
               />
-
-              {data.level === 'municipality' && data.budgetPerCapita !== null && (
-                <MetricCard
-                  variant="ghost"
-                  value={formatCurrency(data.budgetPerCapita)}
-                  label= "Per Cápita"
-                />
-              )}
-            </>
-            ) : (
-              <p className="text-xl italic">
-                El gasto total no está disponible para esta área.
-              </p>
             )}
-            
           </div>
-
         </div>
       </div>
 
       {/* Treemap Visualization */}
-      <div key={`treemap-${contentKey}`} className="rounded-lg border border-border p-6 mb-6 animate-fade-in-up animate-stagger-3">
+      <div key={`treemap-${contentKey}`} className="p-6 animate-fade-in-up animate-stagger-3">
         <h3 className="text-md font-medium mb-4">¿Dónde se concentra el sobregasto?</h3>
         <p className="text-xs tablet:text-sm font-light pb-4">Los bloques más grandes indican las categorías con mayor volumen de gasto en compras que pagaron significativamente más que el precio histórico normal.</p>
         {loadingTreemap && <TreemapSkeleton />}
