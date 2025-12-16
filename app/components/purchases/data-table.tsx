@@ -158,7 +158,7 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => {
                 const handleRowActivation = () => {
                   const chilecompraId = (row.original as { chilecompra_code: string }).chilecompra_code;
-                  window.open(`https://buscador.mercadopublico.cl/ordenes-de-compra?keywords=${chilecompraId}`, '_blank');
+                  window.open(`https://www.mercadopublico.cl/PurchaseOrder/Modules/PO/DetailsPurchaseOrder.aspx?codigoOC=${chilecompraId}`, '_blank');
                 };
 
                 return (

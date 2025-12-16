@@ -31,7 +31,7 @@ const toSentenceCase = (text: string): string => {
 export function PurchaseCard({ purchase, animationDelay = 0 }: PurchaseCardProps) {
   const handleClick = () => {
     window.open(
-      `https://buscador.mercadopublico.cl/ordenes-de-compra?keywords=${purchase.chilecompra_code}`,
+      `https://www.mercadopublico.cl/PurchaseOrder/Modules/PO/DetailsPurchaseOrder.aspx?codigoOC=${purchase.chilecompra_code}`,
       "_blank"
     );
   };
