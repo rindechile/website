@@ -5,10 +5,10 @@ export default function MethodologyPage() {
     <article className="max-w-3xl mx-auto py-16">
       {/* Header Section */}
       <header className="text-center mb-12">
-        <h1 className="text-3xl tablet:text-5xl desktop:text-6xl font-medium mb-6 leading-tight">
+        <h1 className="text-4xl tablet:text-5xl desktop:text-6xl font-medium mb-6 leading-tight">
           Cómo detectamos sobreprecios en compras municipales
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+        <p className="text-md font-medium tablet:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           Nuestro análisis parte de dos preguntas fundamentales: ¿qué define que una compra sea "cara"? y ¿dónde está el límite entre un precio elevado justificable y una anomalía estadística?
         </p>
       </header>
