@@ -1,4 +1,4 @@
-# Rinde Chile
+# RindeChile
 
 Plataforma de visualizacion interactiva para datos de compras publicas del gobierno chileno. Herramienta de transparencia para que todos los ciudadanos puedan explorar como se gastan los recursos publicos en sus regiones y municipalidades.
 

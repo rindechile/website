@@ -32,7 +32,7 @@ export function SiteHeader() {
   return (
     <>
       <header className="bg-background sticky top-0 z-[60] flex w-full items-center">
-        <div className="flex h-(--header-height) w-full items-center justify-between gap-2 py-8 px-6 tablet:p-8">
+        <div className="flex h-(--header-height) w-full items-center justify-between gap-2 px-6 py-12 tablet:p-12">
           {/* Left: Sidebar Toggle (tablet/desktop) + Logo */}
           <div className="flex items-center gap-16">
             <Link href="/" className="flex items-center">
@@ -49,7 +49,7 @@ export function SiteHeader() {
                     >
                       <Image
                         src="/logo-text.svg"
-                        alt="Rinde Chile Logo"
+                        alt="RindeChile Logo"
                         loading="eager"
                         width={100}
                         height={32}
@@ -67,7 +67,7 @@ export function SiteHeader() {
                     >
                         <Image
                           src="/logo-icon.svg"
-                          alt="Rinde Chile Logo"
+                          alt="RindeChile Logo"
                           loading="eager"
                           width={32}
                           height={32}
@@ -79,7 +79,7 @@ export function SiteHeader() {
               </div>
             </Link>
             <Button
-              className="hidden h-8 w-8 md:flex"
+              className="hidden h-8 w-8 tablet:flex"
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}

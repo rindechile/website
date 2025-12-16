@@ -1,6 +1,6 @@
 # Guia de Contribucion
 
-Gracias por tu interes en contribuir a Rinde Chile. Este documento proporciona las pautas y mejores practicas para contribuir al proyecto.
+Gracias por tu interes en contribuir a RindeChile. Este documento proporciona las pautas y mejores practicas para contribuir al proyecto.
 
 ## Codigo de Conducta
 

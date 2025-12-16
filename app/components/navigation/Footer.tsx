@@ -15,7 +15,7 @@ export function Footer() {
             >
               <Image
                 src="/logo-full.svg"
-                alt="Rinde Chile Logo"
+                alt="RindeChile Logo"
                 width={128}
                 height={128}
                 className="fill-foreground"
@@ -73,7 +73,7 @@ export function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-6 border-t border-border flex flex-col tablet:flex-row tablet:justify-between tablet:items-center gap-4">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Rinde Chile. Todos los derechos reservados.
+            © {new Date().getFullYear()} RindeChile. Todos los derechos reservados.
           </p>
           <div className="flex items-center gap-4">
             <p className="text-xs text-muted-foreground">

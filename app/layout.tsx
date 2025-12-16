@@ -15,28 +15,28 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Rinde Chile - Transparencia en Compras Municipales",
+  title: "RindeChile - Transparencia en Compras Municipales",
   description: "Plataforma dedicada a monitorear y promover la transparencia en las compras municipales en Chile.",
   metadataBase: new URL("https://rindechile.cl"),
   openGraph: {
     type: "website",
     locale: "es_CL",
     url: "https://rindechile.cl",
-    siteName: "Rinde Chile",
-    title: "Rinde Chile - Transparencia en Compras Municipales",
+    siteName: "RindeChile",
+    title: "RindeChile - Transparencia en Compras Municipales",
     description: "Plataforma dedicada a monitorear y promover la transparencia en las compras municipales en Chile.",
     images: [
       {
         url: "/opengraph.png",
         width: 1200,
         height: 630,
-        alt: "Rinde Chile - Transparencia en Compras Municipales",
+        alt: "RindeChile - Transparencia en Compras Municipales",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Rinde Chile - Transparencia en Compras Municipales",
+    title: "RindeChile - Transparencia en Compras Municipales",
     description: "Plataforma dedicada a monitorear y promover la transparencia en las compras municipales en Chile.",
     images: ["/opengraph.png"],
   },
@@ -63,7 +63,7 @@ export default function RootLayout({
             <div className="flex flex-1 overflow-hidden">
               <AppSidebar />
               <SidebarInset>
-                <main id="main-content" className="flex-1 p-6 tablet:p-8" tabIndex={-1}>
+                <main id="main-content" className="flex-1 px-6 py-4 tablet:px-12 tablet:py-8" tabIndex={-1}>
                   {children}
                 </main>
 
