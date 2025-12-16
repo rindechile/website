@@ -113,7 +113,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
     : `municipality-${data.municipalityId}`;
 
   return (
-    <div className="h-full overflow-y-auto rounded-xl bg-card p-8 border border-border">
+    <div className="h-full overflow-y-auto rounded-lg p-8 border border-border">
       {/* Header */}
       <div key={`header-${contentKey}`} className="mb-6 animate-fade-in">
         <div className="flex items-start justify-between mb-2">

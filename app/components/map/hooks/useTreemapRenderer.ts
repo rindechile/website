@@ -48,7 +48,7 @@ export function useTreemapRenderer({
     const colorScale = d3
       .scaleSequential()
       .domain([0, maxValue])
-      .interpolator(d3.interpolate('oklch(0.652 0.236 320.67)', 'oklch(0.652 0.236 150.67)'));
+      .interpolator(d3.interpolate('oklch(0.5606 0.0047 33.7977)', 'oklch(0.6348 0.229457 33.7977)'));
 
     // Clear previous content
     const svg = d3.select(svgRef.current);

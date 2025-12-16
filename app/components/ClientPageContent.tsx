@@ -33,13 +33,14 @@ export function ClientPageContent() {
 
         </div>
 
-        <div className="w-full tablet:w-4/5">
+        <section className="w-full tablet:w-4/5">
           {loading ? (
             <DetailPanelSkeleton />
           ) : (
             <DetailPanel data={detailPanelData} />
           )}
-        </div>
+        </section>
+
       </section>
 
       {/* Purchases Table Section */}
