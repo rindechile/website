@@ -32,7 +32,7 @@ export const columns: ColumnDef<Purchase>[] = [
       );
     },
     cell: ({ row }) => {
-      return <div className="font-light">{row.getValue("chilecompra_code")}</div>;
+      return <div className="font-light font-mono">{row.getValue("chilecompra_code")}</div>;
     },
   },
   {
