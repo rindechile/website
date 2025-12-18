@@ -52,7 +52,7 @@ export function SmartSearch({
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
         placeholder={placeholder}
-        className="pl-10 pr-10"
+        className="pl-10 pr-10 text-sm tablet:text-base font-medium"
         aria-label="Buscar por nombre de item o codigo ChileCompra"
       />
       {localValue && (
