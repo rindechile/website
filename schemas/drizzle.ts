@@ -1,4 +1,4 @@
-import { text, integer, real, sqliteTable, index } from "drizzle-orm/sqlite-core";
+import { text, integer, real, sqliteTable, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 // 
 // UNSPSC Tables
@@ -124,4 +124,54 @@ export const purchases = sqliteTable("purchases", {
   // Individual indexes for other common queries
   index("idx_purchases_item").on(table.item_id),
   index("idx_purchases_supplier").on(table.supplier_rut),
+]);
+
+//
+// Document Scraping Tables
+//
+
+export const documentScrapes = sqliteTable("document_scrapes", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  purchase_id: integer("purchase_id")
+    .notNull()
+    .references(() => purchases.id),
+  chilecompra_code: text("chilecompra_code").notNull(),
+
+  // URLs
+  detail_url: text("detail_url").notNull(),
+  pdf_report_url: text("pdf_report_url"),
+
+  // Scraping status
+  scrape_status: text("scrape_status").notNull().default("pending"), // pending, scraping, scraped, failed
+  scrape_error: text("scrape_error"),
+  scrape_attempts: integer("scrape_attempts").notNull().default(0),
+  last_scrape_at: text("last_scrape_at"),
+
+  // R2 storage references
+  r2_folder: text("r2_folder"),
+  attachment_count: integer("attachment_count").default(0),
+  total_file_size: integer("total_file_size").default(0),
+
+  // Timestamps
+  created_at: text("created_at").notNull(),
+  updated_at: text("updated_at").notNull(),
+}, (table) => [
+  index("idx_document_scrapes_purchase").on(table.purchase_id),
+  index("idx_document_scrapes_status").on(table.scrape_status),
+  uniqueIndex("idx_document_scrapes_code").on(table.chilecompra_code),
+]);
+
+export const attachments = sqliteTable("attachments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  document_scrape_id: integer("document_scrape_id")
+    .notNull()
+    .references(() => documentScrapes.id),
+  filename: text("filename").notNull(),
+  file_type: text("file_type"), // "Cotización", "Documento", etc.
+  original_date: text("original_date"),
+  r2_key: text("r2_key").notNull(),
+  file_size: integer("file_size"),
+  content_type: text("content_type"),
+}, (table) => [
+  index("idx_attachments_scrape").on(table.document_scrape_id),
 ]);

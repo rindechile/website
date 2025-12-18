@@ -15,6 +15,13 @@
       "when": 1764514589840,
       "tag": "0001_reflective_blindfold",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1765946275953,
+      "tag": "0002_cultured_cloak",
+      "breakpoints": true
     }
   ]
 }
