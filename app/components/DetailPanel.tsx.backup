@@ -1,6 +1,5 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
 import type { DetailPanelData } from '@/app/contexts/MapContext';
 import { Badge } from '@/app/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app/components/ui/card';
@@ -12,7 +11,7 @@ import { getTreemapData } from '@/app/lib/data-service';
 import type { TreemapHierarchy } from '@/types/map';
 import { useFormatters } from '@/app/lib/hooks/useFormatters';
 import { useSeverityLevel } from '@/app/lib/hooks/useSeverityLevel';
-import { useAsyncDataWithMinDisplay } from '@/app/lib/hooks/useAsyncDataWithMinDisplay';
+import { useAsyncData } from '@/app/lib/hooks/useAsyncData';
 
 interface DetailPanelProps {
   data: DetailPanelData;
@@ -26,7 +25,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
     data: treemapData,
     loading: loadingTreemap,
     error: treemapError
-  } = useAsyncDataWithMinDisplay<TreemapHierarchy>(
+  } = useAsyncData<TreemapHierarchy>(
     async () => {
       if (!data) return null;
 
@@ -39,8 +38,7 @@ export function DetailPanel({ data }: DetailPanelProps) {
       }
       return null;
     },
-    [data],
-    { minDisplayTime: 300 }
+    [data]
   );
 
   // Get level and code for TreemapChart props

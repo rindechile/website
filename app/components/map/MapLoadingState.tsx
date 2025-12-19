@@ -1,4 +1,5 @@
 import { Skeleton } from '@/app/components/ui/skeleton';
+import { Loading } from '@/app/components/ui/loading';
 
 export function MapLoadingState() {
   return (
@@ -13,7 +14,7 @@ export function MapLoadingState() {
       <div className="flex-1 overflow-hidden my-8">
         <div className="w-full h-full flex items-center justify-center">
           <div className="text-center space-y-4">
-            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-foreground/20 border-t-foreground motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+            <Loading size="lg" />
             <p className="text-foreground/80 animate-fade-in">Cargando datos del mapa...</p>
             <p className="text-foreground/50 text-sm animate-fade-in animate-stagger-1">Preparando visualización</p>
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { DataTable } from "./data-table";
 import { columns, type Purchase } from "./columns";
 import { useMapContext } from "../../contexts/MapContext";
@@ -48,13 +49,19 @@ export function PurchasesTable() {
     municipalityName: null,
   });
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { detailPanelData } = useMapContext();
+
+  // Minimum display time for loading state (prevents flashing)
+  const MIN_LOADING_TIME = 300;
 
   useEffect(() => {
     let cancelled = false;
 
     async function fetchData() {
+      const startTime = Date.now();
+      
       try {
         setLoading(true);
         setError(null);
@@ -74,7 +81,7 @@ export function PurchasesTable() {
           params.append('level', 'country');
         }
 
-        // Add pagination parameters
+        // Add pagination parameters - fetch first page quickly
         params.append('page', pagination.page.toString());
         params.append('limit', pagination.limit.toString());
 
@@ -92,10 +99,20 @@ export function PurchasesTable() {
           params.append('municipalityName', filters.municipalityName);
         }
 
-        // Fetch both purchases data and filter options in parallel
-        const [purchasesResponse, filtersResponse] = await Promise.all([
+        // Fetch data with minimum display time for smooth UX
+        const fetchPromise = Promise.all([
           fetch(`/api/purchases?${params.toString()}`),
           fetch(`/api/purchases/filters?${params.toString()}`),
+        ]);
+
+        // Ensure minimum loading time to prevent flash
+        const minTimePromise = initialLoad 
+          ? new Promise(resolve => setTimeout(resolve, MIN_LOADING_TIME))
+          : Promise.resolve();
+
+        const [[purchasesResponse, filtersResponse]] = await Promise.all([
+          fetchPromise,
+          minTimePromise,
         ]);
 
         if (!purchasesResponse.ok || !filtersResponse.ok) {
@@ -137,7 +154,16 @@ export function PurchasesTable() {
         }
       } finally {
         if (!cancelled) {
+          // Ensure minimum loading time has passed
+          const elapsed = Date.now() - startTime;
+          if (initialLoad && elapsed < MIN_LOADING_TIME) {
+            await new Promise(resolve => 
+              setTimeout(resolve, MIN_LOADING_TIME - elapsed)
+            );
+          }
+          
           setLoading(false);
+          setInitialLoad(false);
         }
       }
     }

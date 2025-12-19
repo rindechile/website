@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ColumnDef,
   SortingState,
@@ -150,44 +151,52 @@ export function DataTable<TData, TValue>({
           </TableHeader>
 
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => {
-                const handleRowActivation = () => {
-                  const chilecompraId = (row.original as { chilecompra_code: string }).chilecompra_code;
-                  window.open(`https://www.mercadopublico.cl/PurchaseOrder/Modules/PO/DetailsPurchaseOrder.aspx?codigoOC=${chilecompraId}`, '_blank');
-                };
+            <AnimatePresence mode="popLayout">
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row, index) => {
+                  const handleRowActivation = () => {
+                    const chilecompraId = (row.original as { chilecompra_code: string }).chilecompra_code;
+                    window.open(`https://www.mercadopublico.cl/PurchaseOrder/Modules/PO/DetailsPurchaseOrder.aspx?codigoOC=${chilecompraId}`, '_blank');
+                  };
 
-                return (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  onClick={handleRowActivation}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handleRowActivation();
-                    }
-                  }}
-                  tabIndex={0}
-                  role="link"
-                  aria-label={`Ver orden de compra ${(row.original as { chilecompra_code: string }).chilecompra_code} en ChileCompra (abre en nueva pestaña)`}
-                  className="cursor-pointer hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                  <TableCell className="w-12">
-                    <ExternalLink className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  </TableCell>
-                </TableRow>
-              );
-              })
-            ) : (
+                  return (
+                    <motion.tr
+                      key={row.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ 
+                        duration: 0.2, 
+                        delay: Math.min(index * 0.03, 0.3) // Stagger with max delay
+                      }}
+                      data-state={row.getIsSelected() && "selected"}
+                      onClick={handleRowActivation}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleRowActivation();
+                        }
+                      }}
+                      tabIndex={0}
+                      role="link"
+                      aria-label={`Ver orden de compra ${(row.original as { chilecompra_code: string }).chilecompra_code} en ChileCompra (abre en nueva pestaña)`}
+                      className="border-b transition-colors hover:bg-muted/50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                      <TableCell className="w-12">
+                        <ExternalLink className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      </TableCell>
+                    </motion.tr>
+                  );
+                })
+              ) : (
               <TableRow>
                 <TableCell
                   colSpan={columns.length + 1}
@@ -197,6 +206,7 @@ export function DataTable<TData, TValue>({
                 </TableCell>
               </TableRow>
             )}
+            </AnimatePresence>
           </TableBody>
 
         </Table>

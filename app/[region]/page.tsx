@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { getCodeFromSlug } from '@/lib/region-slugs';
 import { MapProvider } from '../contexts/MapContext';
 import { ClientPageContent } from '../components/ClientPageContent';
+import { RegionPageSkeleton } from '../components/RegionPageSkeleton';
 import { useEffect, useState } from 'react';
 
 interface RegionPageProps {
@@ -30,7 +31,7 @@ export default function RegionPage({ params }: RegionPageProps) {
   }, [params]);
 
   if (isLoading) {
-    return null;
+    return <RegionPageSkeleton />;
   }
 
   return (

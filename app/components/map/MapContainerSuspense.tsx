@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { MapContainer } from "./MapContainer";
 import { Skeleton } from "@/app/components/ui/skeleton";
+import { Loading } from "@/app/components/ui/loading";
 
 interface MapContainerSuspenseProps {
   initialRegionCode?: number;
@@ -21,7 +22,7 @@ function MapLoadingFallback() {
       <div className="flex-1 overflow-hidden my-8">
         <div className="w-full h-full flex items-center justify-center">
           <div className="text-center space-y-4">
-            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-foreground/20 border-t-foreground" />
+            <Loading size="lg" />
             <p className="text-foreground/80">Cargando mapa...</p>
           </div>
         </div>

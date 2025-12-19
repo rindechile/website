@@ -9,6 +9,7 @@ import type {
   ColorScale,
 } from '@/types/map';
 import { useViewportSize } from './hooks/useViewportSize';
+import { Loading } from '@/app/components/ui/loading';
 
 interface ChileMapProps {
   regionsData: EnrichedRegionData[];
@@ -215,14 +216,16 @@ export function ChileMap({
 
           {/* Loading indicator for municipalities */}
           {viewState.level === 'region' && loadingMunicipalities && (
-            <text
-              x={dimensions.width / 2}
-              y={dimensions.height / 2}
-              textAnchor="middle"
-              className="text-sm fill-gray-600"
+            <foreignObject
+              x={0}
+              y={0}
+              width={dimensions.width}
+              height={dimensions.height}
             >
-              Loading municipalities...
-            </text>
+              <div className="w-full h-full flex items-center justify-center bg-background/80">
+                <Loading size="lg" text="Cargando municipios..." />
+              </div>
+            </foreignObject>
           )}
         </g>
       </svg>
